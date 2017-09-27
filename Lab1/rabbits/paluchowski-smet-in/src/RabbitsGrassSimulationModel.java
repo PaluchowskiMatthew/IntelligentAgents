@@ -1,7 +1,11 @@
+import java.awt.Color;
+
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.DisplaySurface;
+import uchicago.src.sim.gui.ColorMap;
+import uchicago.src.sim.gui.Value2DDisplay;
 
 /**
  * Class that implements the simulation model for the rabbits grass simulation.
@@ -9,6 +13,13 @@ import uchicago.src.sim.gui.DisplaySurface;
  * simulation. It manages the entire RePast environment and the simulation.
  *
  * @author
+ * 
+ * 
+ * 
+ * 		http://liapc3.epfl.ch/repast/HowTo15.htm
+ * 
+ * 
+ * 
  */
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
@@ -55,6 +66,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		buildModel();
 		buildSchedule();
 		buildDisplay();
+
+		displaySurface.display();
 	}
 
 	public void buildModel() {
@@ -69,6 +82,18 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	public void buildDisplay() {
 		System.out.println("Running BuildDisplay");
+
+		ColorMap map = new ColorMap();
+
+		for (int i = 1; i < 16; i++) {
+			map.mapColor(i, new Color(0, (int) (i * 8 + 127), 0));
+		}
+		map.mapColor(0, Color.white);
+
+		Value2DDisplay displayMoney = new Value2DDisplay(rabbitsGrassSpace.getCurrentGrassSpace(), map);
+
+		displaySurface.addDisplayable(displayMoney, "Grass");
+
 	}
 
 	public String getName() {
