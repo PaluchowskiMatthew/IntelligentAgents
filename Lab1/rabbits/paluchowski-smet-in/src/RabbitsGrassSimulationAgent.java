@@ -11,6 +11,8 @@ import uchicago.src.sim.space.Object2DGrid;
  */
 
 public class RabbitsGrassSimulationAgent implements Drawable {
+	private static final int INITIALENERGY = 35;
+	
 	private int x;  
 	private int y;
 	private int vX;
@@ -24,7 +26,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	public RabbitsGrassSimulationAgent(int birthTreshhold){
 	    x = -1;
 	    y = -1;
-	    energy = 50;
+	    energy = INITIALENERGY;
 	    setVxVy();
 	    bt = birthTreshhold;
 	    IDNumber++;
@@ -110,6 +112,6 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 		    return rabbitsGrassSpace.moveAgentAt(x, y, newX, newY);
 		  }
 	  public void reproduce() {
-		  energy = 50;
+		  energy = INITIALENERGY;
 	  }
 }
