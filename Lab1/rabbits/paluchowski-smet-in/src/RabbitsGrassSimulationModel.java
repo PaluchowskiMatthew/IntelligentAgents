@@ -42,6 +42,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	private DisplaySurface displaySurface;
 
 	private OpenSequenceGraph amountOfGrassInSpace;
+	private OpenSequenceGraph amountOfRabbitsInSpace;
 	private OpenHistogram rabbitEnergyDistribution;
 
 	class grassInSpace implements DataSource, Sequence {
@@ -52,6 +53,17 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 		public double getSValue() {
 			return (double) rabbitsGrassSpace.getTotalGrass();
+		}
+	}
+	
+	class rabbbitsInSpace implements DataSource, Sequence {
+
+		public Object execute() {
+			return new Double(getSValue());
+		}
+
+		public double getSValue() {
+			return (double) rabbitsGrassSpace.getTotalRabbits();
 		}
 	}
 
@@ -98,6 +110,12 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		}
 		amountOfGrassInSpace = null;
 		
+		
+		if (amountOfRabbitsInSpace != null) {
+			amountOfRabbitsInSpace.dispose();
+		}
+		amountOfRabbitsInSpace = null;
+		
 		if (rabbitEnergyDistribution != null){
 		      rabbitEnergyDistribution.dispose();
 		    }
@@ -106,11 +124,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		// Create Displays
 		displaySurface = new DisplaySurface(this, "Carry Drop Model Window 1");
 		amountOfGrassInSpace = new OpenSequenceGraph("Amount Of Grass In Space", this);
+		amountOfRabbitsInSpace = new OpenSequenceGraph("Amount Of Rabbits In Space", this);
 		rabbitEnergyDistribution = new OpenHistogram("Rabbit energy", 8, 0);
 
 		// Register Displays
 		registerDisplaySurface("Carry Drop Model Window 1", displaySurface);
 		this.registerMediaProducer("Plot", amountOfGrassInSpace);
+		this.registerMediaProducer("Plot", amountOfRabbitsInSpace);
 
 	}
 
@@ -121,6 +141,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 		displaySurface.display();
 		amountOfGrassInSpace.display();
+		amountOfRabbitsInSpace.display();
 		rabbitEnergyDistribution.display();
 	}
 
@@ -168,13 +189,22 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		}
 
 		schedule.scheduleActionAtInterval(10, new RabbitCountLiving());
-		class CarryDropUpdateGrassInSpace extends BasicAction {
+		class RabbitsGrassSimulationUpdateGrassInSpace extends BasicAction {
 			public void execute() {
 				amountOfGrassInSpace.step();
 			}
 		}
 
-		schedule.scheduleActionAtInterval(10, new CarryDropUpdateGrassInSpace());
+		schedule.scheduleActionAtInterval(10, new RabbitsGrassSimulationUpdateGrassInSpace());
+		
+		schedule.scheduleActionAtInterval(10, new RabbitCountLiving());
+		class RabbitsGrassSimulationUpdateRabbitsInSpace extends BasicAction {
+			public void execute() {
+				amountOfRabbitsInSpace.step();
+			}
+		}
+
+		schedule.scheduleActionAtInterval(10, new RabbitsGrassSimulationUpdateRabbitsInSpace());
 		
 		class CarryDropUpdateRabbitEnergy extends BasicAction {
 		      public void execute(){
@@ -205,6 +235,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		displaySurface.addDisplayableProbeable(displayAgents, "Agents");
 
 		amountOfGrassInSpace.addSequence("Grass In Space", new grassInSpace());
+		amountOfRabbitsInSpace.addSequence("Rabbits in space", new rabbbitsInSpace());
 		rabbitEnergyDistribution.createHistogramItem("Rabbit Energy",agentList,new rabbitEnergy());
 
 	}
