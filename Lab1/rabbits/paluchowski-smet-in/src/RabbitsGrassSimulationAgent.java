@@ -91,6 +91,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	                       getEnergy() );
 	  }
 	  public void step(){
+		  setVxVy();
 		  int newX = x + vX;
 		    int newY = y + vY;
 
