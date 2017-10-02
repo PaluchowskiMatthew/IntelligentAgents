@@ -269,7 +269,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	// The grass growth rate controls the rate at which grass grows (total amount of
 	// grass added to the whole world within one simulation tick).
 	public String[] getInitParam() {
-		String[] initParams = { "NumRabbits", "WorldXSize", "WorldYSize", "Grass", "birthTreshhold_stat" };
+		String[] initParams = { "NumRabbits", "WorldXSize", "WorldYSize", "Grass", "BirthTreshhold" };
 		return initParams;
 	}
 
@@ -313,9 +313,4 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		birthTreshhold = bt;
 	}
 
-	public static void main(String[] args) {
-		SimInit init = new SimInit();
-		RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
-		init.loadModel(model, "", false);
-	}
 }
