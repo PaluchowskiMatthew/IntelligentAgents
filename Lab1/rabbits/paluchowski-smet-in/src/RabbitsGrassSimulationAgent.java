@@ -1,12 +1,12 @@
+import java.awt.Color;
+
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
 import uchicago.src.sim.space.Object2DGrid;
-
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
 /**
  * Class that implements the simulation agent for the rabbits grass simulation.
  * 
@@ -14,29 +14,58 @@ import java.util.Random;
  */
 
 public class RabbitsGrassSimulationAgent implements Drawable {
-	private int x;
+private static final int INITIALENERGY = 35;
+	
+	private int x;  
 	private int y;
 	private int vX;
 	private int vY;
 	private int energy;
-	private static int birthThreshold;
+
+	private int bt;
 	private static int IDNumber = 0;
 	private int ID;
 	private RabbitsGrassSimulationSpace rabbitsGrassSpace;
-
-	public RabbitsGrassSimulationAgent(int rabbitBirthThreshold) {
-		x = -1;
-		y = -1;
-		energy = (int) (Math.random() * (birthThreshold - 1)) + 1;
-		setVxVy();
-		birthThreshold = rabbitBirthThreshold;
-		IDNumber++;
-		ID = IDNumber;
+	
+	public RabbitsGrassSimulationAgent(int birthTreshhold){
+	    x = -1;
+	    y = -1;
+	    energy = INITIALENERGY;
+	    setVxVy();
+	    bt = birthTreshhold;
+	    IDNumber++;
+	    ID = IDNumber;
 	}
+	
+	private void setVxVy(){
+	    vX = 0;
+	    vY = 0;
+	    int v = 0;
+	    while(v == 0){
+	      v = (int)Math.floor(Math.random() * 3) - 1;
+	    }
+	    int dir = (int)Math.floor(Math.random()*2);
+	    if(dir == 0) {
+	    		vX = v;
+	    }
+	    	else {
+	    		vY = v;
+	    }
+	  }
+    public void setXY(int newX, int newY){
+        x = newX;
+        y = newY;
+    }
+
+    public void setRabbitsGrassSimulationSpace(RabbitsGrassSimulationSpace rgs){
+        rabbitsGrassSpace = rgs;
+      }
+    
 
 	public void draw(SimGraphics G) {
 		G.drawFastRoundRect(Color.white);
 	}
+		
 
 	public int getX() {
 		return x;
@@ -44,82 +73,51 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 
 	public int getY() {
 		return y;
+
 	}
 
-	public void setXY(int newX, int newY) {
-		x = newX;
-		y = newY;
-	}
+	public String getID(){
+	    return "A-" + ID;
+	  }
 
-	private void setVxVy() {
-		vX = 0;
-		vY = 0;
-		List<String> directions = Arrays.asList("North", "South", "East", "West");
-		String direction = directions.get(new Random().nextInt(directions.size()));
+	  public int getEnergy(){
+	    return energy;
+	  }
+	  
+	  public int getbt(){
+		    return bt;
+		  }
 
-		switch (direction) {
-		case "North":
-			vX = 0;
-			vY = -1;
-			break;
-		case "South":
-			vX = 0;
-			vY = 1;
-			break;
-		case "East":
-			vX = 1;
-			vY = 0;
-			break;
-		case "West":
-			vX = -1;
-			vY = 0;
-			break;
-		}
-	}
 
-	public void setRabbitsGrassSpace(RabbitsGrassSimulationSpace rgss) {
-		rabbitsGrassSpace = rgss;
-	}
+	  
 
-	public String getID() {
-		return "Rabbit-" + ID;
-	}
+	  public void report(){
+	    System.out.println(getID() + 
+	                       " at " + 
+	                       x + ", " + y + 
+	                       " has an energy level of " + 
+	                       getEnergy() );
+	  }
+	  public void step(){
+		  setVxVy();
+		  int newX = x + vX;
+		    int newY = y + vY;
 
-	public int getEnergy() {
-		return energy;
-	}
+		    Object2DGrid grid = rabbitsGrassSpace.getCurrentAgentSpace();
+		    newX = (newX + grid.getSizeX()) % grid.getSizeX();
+		    newY = (newY + grid.getSizeY()) % grid.getSizeY();
 
-	public void setEnergy(int newEnergy) {
-		energy = newEnergy;
-	}
-
-	public int getBirthThreshold() {
-		return birthThreshold;
-	}
-
-	public void report() {
-		System.out.println(getID() + " at " + x + ", " + y + " has " + getEnergy() + " energy" + " and "
-				+ getBirthThreshold() + " birth threshold.");
-	}
-
-	public void step() {
-		int newX = x + vX;
-		int newY = y + vY;
-
-		Object2DGrid grid = rabbitsGrassSpace.getCurrentRabbitSpace();
-		newX = (newX + grid.getSizeX()) % grid.getSizeX();
-		newY = (newY + grid.getSizeY()) % grid.getSizeY();
-
-		energy += rabbitsGrassSpace.takeGrassAt(x, y);
-		while (tryMove(newX, newY)) {	// to be verified if correct
-			setVxVy();
-		}
-		
-		energy--;
-	}
-
-	private boolean tryMove(int newX, int newY) {
-		return rabbitsGrassSpace.moveRabbitAt(x, y, newX, newY);
-	}
-
+		    if(tryMove(newX, newY)){
+		      energy += rabbitsGrassSpace.eatGrass(x, y) - 1;
+		    }
+		    else{
+		      setVxVy();
+		    }
+	  }
+	  private boolean tryMove(int newX, int newY){
+		    return rabbitsGrassSpace.moveAgentAt(x, y, newX, newY);
+		  }
+	  public void reproduce() {
+		  energy = INITIALENERGY;
+	  }
 }

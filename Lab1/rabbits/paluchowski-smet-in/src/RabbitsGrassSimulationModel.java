@@ -1,14 +1,21 @@
 import java.awt.Color;
 import java.util.ArrayList;
 
+import uchicago.src.sim.analysis.BinDataSource;
+import uchicago.src.sim.analysis.DataSource;
+import uchicago.src.sim.analysis.OpenHistogram;
+import uchicago.src.sim.analysis.OpenSequenceGraph;
+import uchicago.src.sim.analysis.Sequence;
+
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
 import uchicago.src.sim.engine.SimModelImpl;
 import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.ColorMap;
-import uchicago.src.sim.gui.Value2DDisplay;
 import uchicago.src.sim.gui.Object2DDisplay;
+import uchicago.src.sim.gui.Value2DDisplay;
+
 import uchicago.src.sim.util.SimUtilities;
 
 /**
@@ -30,22 +37,58 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	private RabbitsGrassSimulationSpace rabbitsGrassSpace;
 
+	private ArrayList agentList;
+
 	private DisplaySurface displaySurface;
 
-	private ArrayList rabbitList;
+	private OpenSequenceGraph amountOfGrassInSpace;
+	private OpenSequenceGraph amountOfRabbitsInSpace;
+	private OpenHistogram rabbitEnergyDistribution;
+
+	class grassInSpace implements DataSource, Sequence {
+
+		public Object execute() {
+			return new Double(getSValue());
+		}
+
+		public double getSValue() {
+			return (double) rabbitsGrassSpace.getTotalGrass();
+		}
+	}
+	
+	class rabbbitsInSpace implements DataSource, Sequence {
+
+		public Object execute() {
+			return new Double(getSValue());
+		}
+
+		public double getSValue() {
+			return (double) rabbitsGrassSpace.getTotalRabbits();
+		}
+	}
+
+	class rabbitEnergy implements BinDataSource {
+		public double getBinValue(Object o) {
+			RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) o;
+			return (double) ra.getEnergy();
+		}
+	}
+
 
 	// Default Values
-	private static final int NUMRABBITS = 50;
+	private static final int NUMRABBITS = 1;
 	private static final int WORLDXSIZE = 20;
 	private static final int WORLDYSIZE = 20;
-	private static final int TOTALGRASS = 100;
-	private static final int RABBIT_BIRTH_THRESHOLD = 10;
+	private static final int TOTALGRASS = 50;
+	private static final int BIRTHTRESHHOLD = 70;
+
 
 	private int numRabbits = NUMRABBITS;
 	private int worldXSize = WORLDXSIZE;
 	private int worldYSize = WORLDYSIZE;
 	private int grass = TOTALGRASS;
-	private int rabbitBirthThreshold = RABBIT_BIRTH_THRESHOLD;
+	private int birthTreshhold = BIRTHTRESHHOLD;
+
 
 	public static void main(String[] args) {
 		SimInit init = new SimInit();
@@ -57,7 +100,8 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		// TODO Auto-generated method stub
 		System.out.println("Running setup");
 		rabbitsGrassSpace = null;
-		rabbitList = new ArrayList();
+		agentList = new ArrayList();
+
 		schedule = new Schedule(1);
 
 		if (displaySurface != null) {
@@ -65,9 +109,33 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		}
 		displaySurface = null;
 
-		displaySurface = new DisplaySurface(this, "Rabbits Grass Simulation Model Window 1");
+		if (amountOfGrassInSpace != null) {
+			amountOfGrassInSpace.dispose();
+		}
+		amountOfGrassInSpace = null;
+		
+		
+		if (amountOfRabbitsInSpace != null) {
+			amountOfRabbitsInSpace.dispose();
+		}
+		amountOfRabbitsInSpace = null;
+		
+		if (rabbitEnergyDistribution != null){
+		      rabbitEnergyDistribution.dispose();
+		    }
+		    rabbitEnergyDistribution = null;
 
-		registerDisplaySurface("Rabbits Grass Simulation Model Window 1", displaySurface);
+		// Create Displays
+		displaySurface = new DisplaySurface(this, "Carry Drop Model Window 1");
+		amountOfGrassInSpace = new OpenSequenceGraph("Amount Of Grass In Space", this);
+		amountOfRabbitsInSpace = new OpenSequenceGraph("Amount Of Rabbits In Space", this);
+		rabbitEnergyDistribution = new OpenHistogram("Rabbit energy", 8, 0);
+
+		// Register Displays
+		registerDisplaySurface("Carry Drop Model Window 1", displaySurface);
+		this.registerMediaProducer("Plot", amountOfGrassInSpace);
+		this.registerMediaProducer("Plot", amountOfRabbitsInSpace);
+
 	}
 
 	public void begin() {
@@ -76,6 +144,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		buildDisplay();
 
 		displaySurface.display();
+		amountOfGrassInSpace.display();
+		amountOfRabbitsInSpace.display();
+		rabbitEnergyDistribution.display();
 	}
 
 	public void buildModel() {
@@ -84,11 +155,12 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		rabbitsGrassSpace.spreadGrass(grass);
 
 		for (int i = 0; i < numRabbits; i++) {
-			addNewRabbit();
+			addNewAgent();
 		}
-		for (int i = 0; i < rabbitList.size(); i++) {
-			RabbitsGrassSimulationAgent rgsa = (RabbitsGrassSimulationAgent) rabbitList.get(i);
-			rgsa.report();
+		for (int i = 0; i < agentList.size(); i++) {
+			RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) agentList.get(i);
+			ra.report();
+
 		}
 
 	}
@@ -96,29 +168,58 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	public void buildSchedule() {
 		System.out.println("Running BuildSchedule");
 
-		class RabbitGrassStep extends BasicAction {
+		class RabbitStep extends BasicAction {
 			public void execute() {
-				SimUtilities.shuffle(rabbitList);
-				for (int i = 0; i < rabbitList.size(); i++) {
-					RabbitsGrassSimulationAgent rgsa = (RabbitsGrassSimulationAgent) rabbitList.get(i);
-					rgsa.step();
+				SimUtilities.shuffle(agentList);
+				for (int i = 0; i < agentList.size(); i++) {
+					RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) agentList.get(i);
+					ra.step();
 				}
-				bringToLifeRabbits();
-				reapDeadRabbits();
-				
+				int reproduction = reproduceAgents();
+				for (int i = 0; i < reproduction; i++) {
+					addNewAgent();
+				}
+				int deadAgents = reapDeadAgents();
+				rabbitsGrassSpace.spreadGrass(grass);
+
 				displaySurface.updateDisplay();
 			}
 		}
 
-		schedule.scheduleActionBeginning(0, new RabbitGrassStep());
+		schedule.scheduleActionBeginning(0, new RabbitStep());
 
-		class RabbitGrassCountLiving extends BasicAction {
+		class RabbitCountLiving extends BasicAction {
 			public void execute() {
-				countLivingRabbits();
+				countLivingAgents();
 			}
 		}
 
-		schedule.scheduleActionAtInterval(10, new RabbitGrassCountLiving());
+		schedule.scheduleActionAtInterval(10, new RabbitCountLiving());
+		class RabbitsGrassSimulationUpdateGrassInSpace extends BasicAction {
+			public void execute() {
+				amountOfGrassInSpace.step();
+			}
+		}
+
+		schedule.scheduleActionAtInterval(10, new RabbitsGrassSimulationUpdateGrassInSpace());
+		
+		schedule.scheduleActionAtInterval(10, new RabbitCountLiving());
+		class RabbitsGrassSimulationUpdateRabbitsInSpace extends BasicAction {
+			public void execute() {
+				amountOfRabbitsInSpace.step();
+			}
+		}
+
+		schedule.scheduleActionAtInterval(10, new RabbitsGrassSimulationUpdateRabbitsInSpace());
+		
+		class CarryDropUpdateRabbitEnergy extends BasicAction {
+		      public void execute(){
+		        rabbitEnergyDistribution.step();
+		      }
+		    }
+
+		    schedule.scheduleActionAtInterval(10, new CarryDropUpdateRabbitEnergy());
+
 	}
 
 	public void buildDisplay() {
@@ -133,11 +234,16 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 		Value2DDisplay displayGrass = new Value2DDisplay(rabbitsGrassSpace.getCurrentGrassSpace(), map);
 
-		Object2DDisplay displayRabbits = new Object2DDisplay(rabbitsGrassSpace.getCurrentRabbitSpace());
-		displayRabbits.setObjectList(rabbitList);
+		Object2DDisplay displayAgents = new Object2DDisplay(rabbitsGrassSpace.getCurrentAgentSpace());
+		displayAgents.setObjectList(agentList);
 
-		displaySurface.addDisplayable(displayGrass, "Grass");
-		displaySurface.addDisplayable(displayRabbits, "Rabbits");
+		displaySurface.addDisplayableProbeable(displayGrass, "Grass");
+		displaySurface.addDisplayableProbeable(displayAgents, "Agents");
+
+		amountOfGrassInSpace.addSequence("Grass In Space", new grassInSpace());
+		amountOfRabbitsInSpace.addSequence("Rabbits in space", new rabbbitsInSpace());
+		rabbitEnergyDistribution.createHistogramItem("Rabbit Energy",agentList,new rabbitEnergy());
+
 
 	}
 
@@ -184,6 +290,49 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		return "RabbitsGrassSimulation";
 	}
 
+	private void addNewAgent() {
+		RabbitsGrassSimulationAgent a = new RabbitsGrassSimulationAgent(birthTreshhold);
+		agentList.add(a);
+		rabbitsGrassSpace.addAgent(a);
+	}
+
+	private int reapDeadAgents() {
+		int count = 0;
+		for (int i = (agentList.size() - 1); i >= 0; i--) {
+			RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) agentList.get(i);
+			if (ra.getEnergy() < 1) {
+				rabbitsGrassSpace.removeAgentAt(ra.getX(), ra.getY());
+				agentList.remove(i);
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private int reproduceAgents() {
+		int count = 0;
+		for (int i = 0; i < agentList.size(); i++) {
+			RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) agentList.get(i);
+			if (ra.getEnergy() > ra.getbt()) {
+				count++;
+				ra.reproduce();
+			}
+		}
+		return count;
+	}
+
+	private int countLivingAgents() {
+		int livingAgents = 0;
+		for (int i = 0; i < agentList.size(); i++) {
+			RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) agentList.get(i);
+			if (ra.getEnergy() > 0)
+				livingAgents++;
+		}
+		System.out.println("Number of living agents is: " + livingAgents);
+
+		return livingAgents;
+	}
+
 	public Schedule getSchedule() {
 		// TODO Auto-generated method stub
 		return schedule;
@@ -197,7 +346,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	// The grass growth rate controls the rate at which grass grows (total amount of
 	// grass added to the whole world within one simulation tick).
 	public String[] getInitParam() {
-		String[] initParams = { "NumRabbits", "WorldXSize", "WorldYSize", "Grass", "RabbitBirthThreshold" };
+		String[] initParams = { "NumRabbits", "WorldXSize", "WorldYSize", "Grass", "BirthTreshhold" };
 		return initParams;
 	}
 
@@ -233,11 +382,12 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		grass = g;
 	}
 
-	public int getRabbitBirthThreshold() {
-		return rabbitBirthThreshold;
+	public int getbirthTreshhold() {
+		return birthTreshhold;
 	}
 
-	public void setRabbitBirthThreshold(int birthThreshold) {
-		rabbitBirthThreshold = birthThreshold;
+	public void setbirthTreshhold(int bt) {
+		birthTreshhold = bt;
 	}
+
 }
