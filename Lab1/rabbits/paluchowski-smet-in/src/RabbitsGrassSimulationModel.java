@@ -6,6 +6,7 @@ import uchicago.src.sim.analysis.DataSource;
 import uchicago.src.sim.analysis.OpenHistogram;
 import uchicago.src.sim.analysis.OpenSequenceGraph;
 import uchicago.src.sim.analysis.Sequence;
+
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -14,6 +15,7 @@ import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.ColorMap;
 import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.gui.Value2DDisplay;
+
 import uchicago.src.sim.util.SimUtilities;
 
 /**
@@ -24,9 +26,7 @@ import uchicago.src.sim.util.SimUtilities;
  * @author
  * 
  * 
- * 
- * 		http://liapc3.epfl.ch/repast/HowTo15.htm
- * 
+ * FINISHED HERE http://liapc3.epfl.ch/repast/HowTo27.htm
  * 
  * 
  */
@@ -74,6 +74,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		}
 	}
 
+
 	// Default Values
 	private static final int NUMRABBITS = 1;
 	private static final int WORLDXSIZE = 20;
@@ -81,11 +82,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	private static final int TOTALGRASS = 50;
 	private static final int BIRTHTRESHHOLD = 70;
 
+
 	private int numRabbits = NUMRABBITS;
 	private int worldXSize = WORLDXSIZE;
 	private int worldYSize = WORLDYSIZE;
 	private int grass = TOTALGRASS;
 	private int birthTreshhold = BIRTHTRESHHOLD;
+
 
 	public static void main(String[] args) {
 		SimInit init = new SimInit();
@@ -98,6 +101,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		System.out.println("Running setup");
 		rabbitsGrassSpace = null;
 		agentList = new ArrayList();
+
 		schedule = new Schedule(1);
 
 		if (displaySurface != null) {
@@ -156,6 +160,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		for (int i = 0; i < agentList.size(); i++) {
 			RabbitsGrassSimulationAgent ra = (RabbitsGrassSimulationAgent) agentList.get(i);
 			ra.report();
+
 		}
 
 	}
@@ -176,6 +181,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 				}
 				int deadAgents = reapDeadAgents();
 				rabbitsGrassSpace.spreadGrass(grass);
+
 				displaySurface.updateDisplay();
 			}
 		}
@@ -238,6 +244,46 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		amountOfRabbitsInSpace.addSequence("Rabbits in space", new rabbbitsInSpace());
 		rabbitEnergyDistribution.createHistogramItem("Rabbit Energy",agentList,new rabbitEnergy());
 
+
+	}
+
+	private void addNewRabbit() {
+		RabbitsGrassSimulationAgent rabbit = new RabbitsGrassSimulationAgent(rabbitBirthThreshold);
+		rabbitList.add(rabbit);
+		rabbitsGrassSpace.addRabbit(rabbit);
+	}
+	
+	private void bringToLifeRabbits() {
+		for (int i = (rabbitList.size() - 1); i >= 0; i--) {
+			RabbitsGrassSimulationAgent rgsa = (RabbitsGrassSimulationAgent) rabbitList.get(i);
+			int rabbitEnergy = rgsa.getEnergy();
+			if (rabbitEnergy >= rabbitBirthThreshold) {
+				rgsa.setEnergy(rabbitEnergy/2);
+				addNewRabbit();
+			}
+		}
+	}
+
+	private void reapDeadRabbits() {
+		for (int i = (rabbitList.size() - 1); i >= 0; i--) {
+			RabbitsGrassSimulationAgent rgsa = (RabbitsGrassSimulationAgent) rabbitList.get(i);
+			if (rgsa.getEnergy() < 1) {
+				rabbitsGrassSpace.removeRabbitAt(rgsa.getX(), rgsa.getY());
+				rabbitList.remove(i);
+			}
+		}
+	}
+
+	private int countLivingRabbits() {
+		int livingRabbits = 0;
+		for (int i = 0; i < rabbitList.size(); i++) {
+			RabbitsGrassSimulationAgent rgsa = (RabbitsGrassSimulationAgent) rabbitList.get(i);
+			if (rgsa.getEnergy() > 0)
+				livingRabbits++;
+		}
+		System.out.println("Number of living rabbits is: " + livingRabbits);
+
+		return livingRabbits;
 	}
 
 	public String getName() {

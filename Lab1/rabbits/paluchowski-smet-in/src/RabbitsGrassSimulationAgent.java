@@ -3,7 +3,10 @@ import java.awt.Color;
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
 import uchicago.src.sim.space.Object2DGrid;
-
+import java.awt.Color;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 /**
  * Class that implements the simulation agent for the rabbits grass simulation.
  * 
@@ -11,13 +14,14 @@ import uchicago.src.sim.space.Object2DGrid;
  */
 
 public class RabbitsGrassSimulationAgent implements Drawable {
-	private static final int INITIALENERGY = 35;
+private static final int INITIALENERGY = 35;
 	
 	private int x;  
 	private int y;
 	private int vX;
 	private int vY;
 	private int energy;
+
 	private int bt;
 	private static int IDNumber = 0;
 	private int ID;
@@ -57,6 +61,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
         rabbitsGrassSpace = rgs;
       }
     
+
 	public void draw(SimGraphics G) {
 		G.drawFastRoundRect(Color.white);
 	}
@@ -68,6 +73,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 
 	public int getY() {
 		return y;
+
 	}
 
 	public String getID(){
