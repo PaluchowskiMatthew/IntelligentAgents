@@ -107,7 +107,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		State currentState = new State(currentCity, deliveryCity);
 		
 		City bestAction = MarkovDecissionProcessModel.getBestAction(currentState);
-		System.out.println(bestAction.name);
+
 		
 		if (availableTask != null && bestAction.equals(availableTask.deliveryCity)) {
 			action = new Pickup(availableTask);
