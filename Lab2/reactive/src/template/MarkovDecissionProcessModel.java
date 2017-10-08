@@ -41,13 +41,11 @@ public class MarkovDecissionProcessModel {
 	}
 
 	private static void initializeMDP(){
-		System.out.println("Initialize MDP START");
 		for(State currState: allStates) {
 			bestAction.put(currState, null);
 			V.put(currState, 0.0);
 			Vprime.put(currState, 0.0);
 		}
-		System.out.println("Initialize MDP END");
 	}
 
 	public static void learnOfflinePolicy(Topology topology, TaskDistribution td, Agent agent, Double discount) {
@@ -81,8 +79,8 @@ public class MarkovDecissionProcessModel {
 		
 		
 		Double changeOfV = 1000000.1;
-		while(changeOfV > 0.1) {
-			System.out.println("inside while loop");
+		int numberOfIterations = 0;
+		while(changeOfV > 1E-5) {
 			for(State state: allStates) {
 				List<City> actions = getPossibleAcctions(state);
 				for(City action: actions) {
@@ -101,7 +99,7 @@ public class MarkovDecissionProcessModel {
 				double newVprime = V.get(state).doubleValue();
 				Vprime.put(state, newVprime);
 				
-				HashMap<City, Double> QsForActions = (HashMap<City, Double>) Q.get(state).values();
+				HashMap<City, Double> QsForActions = Q.get(state);
 				Double tmpBestQ = 0.0;
 				City tmpBestAction = null;
 				for(City qs: QsForActions.keySet()) {
@@ -113,17 +111,12 @@ public class MarkovDecissionProcessModel {
 				}
 				V.put(state, tmpBestQ);
 				bestAction.put(state, tmpBestAction);
-				changeOfV = changeOfV();
-				
-				System.out.println("WHAAAT");
-				if(tmpBestAction != null) {
-					System.out.println(tmpBestAction);
-				}
-				
 			}
+			changeOfV = changeOfV();
+			numberOfIterations++;
 		}
-		
-
+		System.out.println("changeOfV " + changeOfV);
+		System.out.println("numberOfIterations " + numberOfIterations);
 	}
 	
 	public static City getBestAction(State s){
@@ -148,8 +141,12 @@ public class MarkovDecissionProcessModel {
 		City currentCity = state.getCurrentCity();
 		City deliveryCity = state.getDeliveryCity(); // can be added twice if neighbor is delivery city and null?
 		
-		List<City> possibleActions = currentCity.neighbors();
-		possibleActions.add(deliveryCity);
+		List<City> possibleActions = new ArrayList();
+		possibleActions.addAll(currentCity.neighbors());
+		
+		if(deliveryCity != null && !possibleActions.contains(deliveryCity)) {
+			possibleActions.add(deliveryCity);
+		}
 		
 		return possibleActions;
 	}
@@ -158,7 +155,7 @@ public class MarkovDecissionProcessModel {
 		double changeOfV = 0.0;
 		
 		for(State s : V.keySet()) {
-			double diff = Vprime.get(s).doubleValue() - V.get(s).doubleValue();
+			double diff =  V.get(s).doubleValue() - Vprime.get(s).doubleValue();
 			changeOfV += diff;
 		}
 		
@@ -173,7 +170,7 @@ public class MarkovDecissionProcessModel {
 				
 		long taskPenalty = (long) (v.costPerKm() * currentCity.distanceTo(action));
 
-		long taskReward = (deliveryCity.equals(action)) ? td.reward(currentCity, action) : 0l;
+		long taskReward = ((deliveryCity != null) && (deliveryCity.equals(action))) ? td.reward(currentCity, action) : 0l;
 
 		reward = taskReward - taskPenalty;
 
