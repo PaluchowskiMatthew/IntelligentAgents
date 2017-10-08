@@ -69,9 +69,6 @@ public class ReactiveTemplate implements ReactiveBehavior {
 	public Action act(Vehicle vehicle, Task availableTask) {
 		Action action;
 
-
-		
-		
 		/*
 		 * 1. The vehicle starts from its home city and can move freely through the network.
 		   2. When the vehicle arrives in a city, it finds out whether or not a task is available in that city.
@@ -82,34 +79,40 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		   7. Ataskwhichwasrefuseddisappearsimmediately.Thenexttimetheagentmoves to that city a new task is generated according to the probability distribution.
 		 */
 		
-		if (availableTask != null) {
-			
-			System.out.println(availableTask.deliveryCity);
-			System.out.println(availableTask.id);
-			System.out.println(availableTask.pickupCity);
-			System.out.println(availableTask.reward);
-			System.out.println(availableTask.weight); // kg
-			
-			System.out.println(vehicle.id());
-			System.out.println(vehicle.name());
-			System.out.println(vehicle.capacity());
-			System.out.println(vehicle.homeCity());
-			System.out.println(vehicle.speed());
-			System.out.println(vehicle.costPerKm());
-			System.out.println(vehicle.getCurrentCity());
-			System.out.println(vehicle.getCurrentTasks());
-			System.out.println(vehicle.getReward());
-			System.out.println(vehicle.getDistanceUnits());
-			
-			
-			boolean pick = decideWhatToDo();
-		}
+//		if (availableTask != null) {
+//			
+//			System.out.println(availableTask.deliveryCity);
+//			System.out.println(availableTask.id);
+//			System.out.println(availableTask.pickupCity);
+//			System.out.println(availableTask.reward);
+//			System.out.println(availableTask.weight); // kg
+//			
+//			System.out.println(vehicle.id());
+//			System.out.println(vehicle.name());
+//			System.out.println(vehicle.capacity());
+//			System.out.println(vehicle.homeCity());
+//			System.out.println(vehicle.speed());
+//			System.out.println(vehicle.costPerKm());
+//			System.out.println(vehicle.getCurrentCity());
+//			System.out.println(vehicle.getCurrentTasks());
+//			System.out.println(vehicle.getReward());
+//			System.out.println(vehicle.getDistanceUnits());
+//			
+//			
+//			boolean pick = decideWhatToDo();
+//		}
 		
-		if (availableTask == null || random.nextDouble() > pPickup) {
-			City currentCity = vehicle.getCurrentCity();
-			action = new Move(currentCity.randomNeighbor(random));
-		} else {
+		City currentCity = vehicle.getCurrentCity();
+		City deliveryCity = (availableTask == null) ? null : availableTask.deliveryCity;
+		State currentState = new State(currentCity, deliveryCity);
+		
+		City bestAction = MarkovDecissionProcessModel.getBestAction(currentState);
+		System.out.println(bestAction.name);
+		
+		if (availableTask != null && bestAction.equals(availableTask.deliveryCity)) {
 			action = new Pickup(availableTask);
+		} else {
+			action = new Move(bestAction);
 		}
 		
 		if (numActions >= 1) {
