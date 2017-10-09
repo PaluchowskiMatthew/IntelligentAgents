@@ -11,15 +11,13 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
-// our action is just a city class as in agent can go to any City
 
 public class MarkovDecissionProcessModel {
 
-	
-	static HashMap<State, City>bestAction = new HashMap<State, City>();
-	static HashMap<State, Double>V = new HashMap<State, Double>();
-	static HashMap<State, Double>Vprime = new HashMap<State, Double>();
-	static HashMap<State, HashMap<City, Double>>Q = new HashMap<State, HashMap<City, Double>>();
+	private static HashMap<State, City>bestAction = new HashMap<State, City>();
+	private static HashMap<State, Double>V = new HashMap<State, Double>();
+	private static HashMap<State, Double>Vprime = new HashMap<State, Double>();
+	private static HashMap<State, HashMap<City, Double>>Q = new HashMap<State, HashMap<City, Double>>();
 
 	private static List<State> allStates = new ArrayList<State>();
 
@@ -49,34 +47,9 @@ public class MarkovDecissionProcessModel {
 	}
 
 	public static void learnOfflinePolicy(Topology topology, TaskDistribution td, Agent agent, Double discount) {
-
-		/*
-		 * — An adequate state representation of the world
-		 * 		Vehicle currentVehicle;	
-		 *		private Task currentTask;
-		   — Which actions you can take in each state, and
-		   — the corresponding state transition, — the probability of the transition and — the reward of the transition.
-
-		 */
-		
-		/*
-		 *  for s in all states:
-		 *  		actions = getPossibleActions(s);
-		 *  		for a in all actions:
-		 *  			reward = calculateReward(s, a)
-		 *  			
-		 *  			transistion = calculateTransition(state
-		 */
-		
-		
-//		sthHoldingStates
-//		for state in sthHoldingStates:
-//			destCoty = state.getCurrentVehicle().destCity;
-//			currentCity = state.getCurrentVehicle().currentCity
 			
 		generateAllStates(topology);
-		initializeMDP();
-		
+		initializeMDP();		
 		
 		Double changeOfV = 1000000.1;
 		int numberOfIterations = 0;
