@@ -80,7 +80,7 @@ public class MarkovDecissionProcessModel {
 		
 		Double changeOfV = 1000000.1;
 		int numberOfIterations = 0;
-		while(changeOfV > 1E-5) {
+		while(changeOfV > 1E-10) {
 			for(State state: allStates) {
 				List<City> actions = getPossibleAcctions(state);
 				for(City action: actions) {
