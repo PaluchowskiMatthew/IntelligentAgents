@@ -11,13 +11,19 @@ import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 
+import template.BFS;
+
+// Goal (final state) - deliver them all tasks
+// State - Place 1 vehicle and all packages (constrained by capacity)
+// 
+
 /**
  * An optimal planner for one vehicle.
  */
 @SuppressWarnings("unused")
 public class DeliberativeTemplate implements DeliberativeBehavior {
 
-	enum Algorithm { BFS, ASTAR }
+	enum Algorithm { BFS, ASTAR, NAIVE }
 	
 	/* Environment */
 	Topology topology;
@@ -38,6 +44,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		
 		// initialize the planner
 		int capacity = agent.vehicles().get(0).capacity();
+		int costPerKM = agent.vehicles().get(0).costPerKm();
 		String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
 		
 		// Throws IllegalArgumentException if algorithm is unknown
@@ -54,15 +61,26 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		switch (algorithm) {
 		case ASTAR:
 			// ...
+//			plan = AStarPlan(vehicle, tasks);
 			plan = naivePlan(vehicle, tasks);
 			break;
 		case BFS:
+			// ...
+//			plan = naivePlan(vehicle, tasks);
+			plan = BFSPlan(vehicle, tasks, capacity);
+			break;
+		case NAIVE:
 			// ...
 			plan = naivePlan(vehicle, tasks);
 			break;
 		default:
 			throw new AssertionError("Should not happen.");
 		}		
+		return plan;
+	}
+	
+	private Plan BFSPlan(Vehicle vehicle, TaskSet tasks, int capacity) {
+		Plan plan = BFS.createPlan(vehicle, tasks, capacity);
 		return plan;
 	}
 	
@@ -77,7 +95,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 
 			plan.appendPickup(task);
 
-			// move: pickup location => delivery location
+			// move: pickup location => delivery location (shortest path)
 			for (City city : task.path())
 				plan.appendMove(city);
 
