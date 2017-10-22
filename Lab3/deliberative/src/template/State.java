@@ -12,17 +12,28 @@ import logist.plan.Plan;
 
 
 public class State {	
+	City initialCity; 
 	City currentCity; // current city where vehicle is located
 	TaskSet vehicleTasks; // tasks picked up by vehicle
 	TaskSet topologyTasks; // tasks awaiting to be delivered
 	Plan plan;
 	
-	public State(City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks, Plan plan) {
+	public State(City initialCity, City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks, Plan plan) {
+		this.initialCity = initialCity;
 		this.currentCity = currentCity;
 		this.vehicleTasks = vehicleTasks;
 		this.topologyTasks = topologyTasks;
 		this.plan = plan;
 	}
+	
+	public State copyState() {
+        Plan planCopy = new Plan(initialCity);
+        for (Action a : plan) {
+        		planCopy.append(a);
+        }
+        State newState = new State(initialCity, currentCity, TaskSet.copyOf(vehicleTasks), TaskSet.copyOf(topologyTasks), planCopy);
+        return newState;
+    }
 
 	public City getCurrentCity() {
 		return currentCity;

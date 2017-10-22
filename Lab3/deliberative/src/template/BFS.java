@@ -21,6 +21,7 @@ public class BFS {
 
 		State finalState = BFSAlgorithm(vehicle, tasks);
 		Plan plan = finalState.plan;
+		System.out.println(plan);
 		return plan;
 	}
 
@@ -28,7 +29,7 @@ public class BFS {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
 		
-		State initialState = new State(vehicle.getCurrentCity(), vehicle.getCurrentTasks(), tasks, plan); // n
+		State initialState = new State(vehicle.getCurrentCity(), vehicle.getCurrentCity(), vehicle.getCurrentTasks(), tasks, plan); // n
 		Q.add(initialState);
 
 		State finalState = null;
@@ -43,10 +44,11 @@ public class BFS {
 				 finalState = n;
 				 break;
 			 }
-			 if(!C.contains(n)) {
-				 C.add(n);
-				 S = getSuccessors(n);
-			 }
+//			 if(!C.contains(n)) {
+//				 C.add(n);
+//				 S = getSuccessors(n);
+//			 }
+			 S = getSuccessors(n);
 			 Q.addAll(S);
 			 
 		} while (true);
@@ -58,23 +60,32 @@ public class BFS {
 		List<State> successors = new ArrayList<State>();
 		TaskSet vehicleTasks = state.getVehicleTasks();
 		TaskSet topologyTasks = state.getTopologyTasks();
-		City current = state.getCurrentCity();
-		Plan plan = state.getPlan();
+//		City current = state.getCurrentCity();
+//		Plan plan = state.getPlan();
 		int weightInTheTrunk = vehicleTasks.weightSum();
 
 		// Successor pickup state
 		for (Task task : topologyTasks) {
 			City taskCity = task.pickupCity;
 			int taskWeight = task.weight;
+			State nextState = state.copyState();
+			
+			
 			if ((weightInTheTrunk + taskWeight) < agentCapacity) {
-				TaskSet newVehicleTasks = vehicleTasks.clone();
+				TaskSet newVehicleTasks = nextState.getVehicleTasks(); //vehicleTasks.clone();
 				newVehicleTasks.add(task);
-				TaskSet newTopologyTasks = topologyTasks.clone();
+				nextState.setVehicleTasks(newVehicleTasks);
+				
+				TaskSet newTopologyTasks = nextState.getTopologyTasks(); //topologyTasks.clone();
 				newTopologyTasks.remove(task);
-				Plan newplan = plan;
-				newplan.appendMove(taskCity);
-				newplan.appendPickup(task);
-				State nextState = new State(taskCity, newVehicleTasks, newTopologyTasks, newplan);
+				nextState.setTopologyTasks(newTopologyTasks);
+				
+//				Plan newplan = plan;
+				for (City city : nextState.getCurrentCity().pathTo(taskCity))
+					nextState.plan.appendMove(city);
+
+				nextState.plan.appendPickup(task);
+				nextState.currentCity = taskCity;
 				successors.add(nextState);
 			}
 		}
@@ -82,12 +93,20 @@ public class BFS {
 		// Successor deliver state
 		for (Task task : vehicleTasks) {
 			City taskCity = task.deliveryCity;
-			TaskSet newVehicleTasks = vehicleTasks.clone();
+			State nextState = state.copyState();
+			
+			TaskSet newVehicleTasks = nextState.getVehicleTasks();//vehicleTasks.clone();
 			newVehicleTasks.remove(task);
-			Plan newplan = plan;
-			newplan.appendMove(taskCity);
-			newplan.appendDelivery(task);
-			State nextState = new State(taskCity, newVehicleTasks, topologyTasks, newplan);
+			nextState.setVehicleTasks(newVehicleTasks);
+			
+//			Plan newplan = plan;
+//			newplan.appendMove(taskCity);
+			for (City city : task.path())
+				nextState.plan.appendMove(city);
+
+			nextState.plan.appendDelivery(task);
+			nextState.currentCity = taskCity;
+//			State nextState = new State(taskCity, newVehicleTasks, topologyTasks, newplan);
 			successors.add(nextState);
 		}
 		return successors;
