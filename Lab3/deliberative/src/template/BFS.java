@@ -49,8 +49,9 @@ public class BFS {
 //				 S = getSuccessors(n);
 //			 }
 			 S = getSuccessors(n);
+//			 System.out.println(S.size());
 			 Q.addAll(S);
-			 
+//			 Q=S;
 		} while (true);
 
 		return finalState;
@@ -66,7 +67,7 @@ public class BFS {
 
 		// Successor pickup state
 		for (Task task : topologyTasks) {
-			City taskCity = task.pickupCity;
+			City taskpCity = task.pickupCity;
 			int taskWeight = task.weight;
 			State nextState = state.copyState();
 			
@@ -80,19 +81,19 @@ public class BFS {
 				newTopologyTasks.remove(task);
 				nextState.setTopologyTasks(newTopologyTasks);
 				
-//				Plan newplan = plan;
-				for (City city : nextState.getCurrentCity().pathTo(taskCity))
+//								Plan newplan = plan;
+				for (City city : nextState.getCurrentCity().pathTo(taskpCity))
 					nextState.plan.appendMove(city);
 
 				nextState.plan.appendPickup(task);
-				nextState.currentCity = taskCity;
+				nextState.currentCity = taskpCity;
 				successors.add(nextState);
 			}
 		}
-
+		
 		// Successor deliver state
 		for (Task task : vehicleTasks) {
-			City taskCity = task.deliveryCity;
+			City taskdCity = task.deliveryCity;
 			State nextState = state.copyState();
 			
 			TaskSet newVehicleTasks = nextState.getVehicleTasks();//vehicleTasks.clone();
@@ -101,14 +102,17 @@ public class BFS {
 			
 //			Plan newplan = plan;
 //			newplan.appendMove(taskCity);
-			for (City city : task.path())
+			for (City city : nextState.getCurrentCity().pathTo(taskdCity))
 				nextState.plan.appendMove(city);
 
 			nextState.plan.appendDelivery(task);
-			nextState.currentCity = taskCity;
+			nextState.currentCity = taskdCity;
 //			State nextState = new State(taskCity, newVehicleTasks, topologyTasks, newplan);
 			successors.add(nextState);
 		}
+		
+		
+
 		return successors;
 	}
 

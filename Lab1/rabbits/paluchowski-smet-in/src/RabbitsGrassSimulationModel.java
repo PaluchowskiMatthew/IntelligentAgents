@@ -244,6 +244,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		amountOfRabbitsInSpace.addSequence("Rabbits in space", new rabbbitsInSpace());
 		rabbitEnergyDistribution.createHistogramItem("Rabbit Energy",agentList,new rabbitEnergy());
 
+<<<<<<< Updated upstream
 
 	}
 
@@ -285,6 +286,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 		return livingRabbits;
 	}
+=======
+	} 
+>>>>>>> Stashed changes
 
 	public String getName() {
 		return "RabbitsGrassSimulation";

@@ -1,3 +1,5 @@
+
+
 package template;
 
 import java.util.List;
@@ -68,16 +70,14 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 		City bestAction = MarkovDecissionProcessModel.getBestAction(currentState);
 		
-		if (bestAction != null) {
 
-			if (availableTask != null && bestAction.equals(availableTask.deliveryCity)) {
-				action = new Pickup(availableTask);
-			} else {
-				action = new Move(bestAction);
-			}
+
+		if (availableTask != null && bestAction.equals(availableTask.deliveryCity)) {
+			action = new Pickup(availableTask);
 		} else {
-			action = new Move(currentCity.randomNeighbor(random));
+			action = new Move(bestAction);
 		}
+
 		// END REACTIVE AGENT
 		
 		// RANDOM AGENT
