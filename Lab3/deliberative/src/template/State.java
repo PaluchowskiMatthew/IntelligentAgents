@@ -11,27 +11,17 @@ import logist.topology.Topology.City;
 import logist.plan.Plan;
 
 
-public class State {
-	State parentState = null; // backtrack the states
-	
+public class State {	
 	City currentCity; // current city where vehicle is located
 	TaskSet vehicleTasks; // tasks picked up by vehicle
 	TaskSet topologyTasks; // tasks awaiting to be delivered
+	Plan plan;
 	
-	
-	public State(State parentState, City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks) {
-		this.parentState = parentState;
+	public State(City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks, Plan plan) {
 		this.currentCity = currentCity;
 		this.vehicleTasks = vehicleTasks;
 		this.topologyTasks = topologyTasks;
-	}
-
-	public State getParentState() {
-		return parentState;
-	}
-
-	public void setParentState(State parentState) {
-		this.parentState = parentState;
+		this.plan = plan;
 	}
 
 	public City getCurrentCity() {
@@ -58,5 +48,16 @@ public class State {
 		this.topologyTasks = topologyTasks;
 	}
 	
+	public Plan getPlan() {
+		return plan;
+	}
+
+	public void setPlan(Plan plan) {
+		this.plan = plan;
+	}
+	
+	public Boolean isFinalState() {
+		return vehicleTasks.isEmpty() && topologyTasks.isEmpty();
+	}
 	
 }
