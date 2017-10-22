@@ -67,7 +67,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		case BFS:
 			// ...
 //			plan = naivePlan(vehicle, tasks);
-			plan = BFSPlan(vehicle, tasks, capacity);
+			plan = BFSPlan(vehicle, tasks);
 			break;
 		case NAIVE:
 			// ...
@@ -79,8 +79,8 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		return plan;
 	}
 	
-	private Plan BFSPlan(Vehicle vehicle, TaskSet tasks, int capacity) {
-		Plan plan = BFS.createPlan(vehicle, tasks, capacity);
+	private Plan BFSPlan(Vehicle vehicle, TaskSet tasks) {
+		Plan plan = BFS.createPlan(vehicle, tasks);
 		return plan;
 	}
 	

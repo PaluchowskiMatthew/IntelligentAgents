@@ -16,8 +16,9 @@ public class BFS {
 	static List<State> C = new ArrayList<State>();
 	static int agentCapacity;
 
-	public static Plan createPlan(Vehicle vehicle, TaskSet tasks, int capacity) {
-		agentCapacity = capacity;
+	public static Plan createPlan(Vehicle vehicle, TaskSet tasks) {
+		agentCapacity = vehicle.capacity();
+
 		State finalState = BFSAlgorithm(vehicle, tasks);
 		Plan plan = finalState.plan;
 		return plan;
@@ -54,7 +55,7 @@ public class BFS {
 	}
 
 	private static List<State> getSuccessors(State state) {
-		List<State> succesors = new ArrayList<State>();
+		List<State> successors = new ArrayList<State>();
 		TaskSet vehicleTasks = state.getVehicleTasks();
 		TaskSet topologyTasks = state.getTopologyTasks();
 		City current = state.getCurrentCity();
@@ -74,7 +75,7 @@ public class BFS {
 				newplan.appendMove(taskCity);
 				newplan.appendPickup(task);
 				State nextState = new State(taskCity, newVehicleTasks, newTopologyTasks, newplan);
-				succesors.add(nextState);
+				successors.add(nextState);
 			}
 		}
 
@@ -87,9 +88,9 @@ public class BFS {
 			newplan.appendMove(taskCity);
 			newplan.appendDelivery(task);
 			State nextState = new State(taskCity, newVehicleTasks, topologyTasks, newplan);
-			succesors.add(nextState);
+			successors.add(nextState);
 		}
-		return succesors;
+		return successors;
 	}
 
 }
