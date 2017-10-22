@@ -18,66 +18,78 @@ public class BFS {
 
 	public static Plan createPlan(Vehicle vehicle, TaskSet tasks, int capacity) {
 		agentCapacity = capacity;
-		State finalState = findFinalState(vehicle, tasks);
-		Plan plan = getPlanForFinalState(finalState);
+		State finalState = BFSAlgorithm(vehicle, tasks);
+		Plan plan = finalState.plan;
 		return plan;
 	}
 
-	public static State findFinalState(Vehicle vehicle, TaskSet tasks) {
-		State initialState = new State(null, vehicle.getCurrentCity(), vehicle.getCurrentTasks(), tasks); // n
+	public static State BFSAlgorithm(Vehicle vehicle, TaskSet tasks) {
+		City current = vehicle.getCurrentCity();
+		Plan plan = new Plan(current);
+		
+		State initialState = new State(vehicle.getCurrentCity(), vehicle.getCurrentTasks(), tasks, plan); // n
 		Q.add(initialState);
 
 		State finalState = null;
 		do {
+			List<State> S = null;
 			if (Q.isEmpty()) {
 				System.out.println("BFS Error. Final State not found.");
 				break;
 			}
-			// State n = Q.
-
+			 State n = Q.remove(0);
+			 if(n.isFinalState()) {
+				 finalState = n;
+				 break;
+			 }
+			 if(!C.contains(n)) {
+				 C.add(n);
+				 S = getSuccessors(n);
+			 }
+			 Q.addAll(S);
+			 
 		} while (true);
 
-		return initialState;
+		return finalState;
 	}
 
-	private static List<State> Succesor(State state) {
+	private static List<State> getSuccessors(State state) {
 		List<State> succesors = new ArrayList<State>();
 		TaskSet vehicleTasks = state.getVehicleTasks();
 		TaskSet topologyTasks = state.getTopologyTasks();
 		City current = state.getCurrentCity();
-		State parentState = state.getParentState();
+		Plan plan = state.getPlan();
 		int weightInTheTrunk = vehicleTasks.weightSum();
 
-		// Succesor pickup state
+		// Successor pickup state
 		for (Task task : topologyTasks) {
 			City taskCity = task.pickupCity;
 			int taskWeight = task.weight;
 			if ((weightInTheTrunk + taskWeight) < agentCapacity) {
 				TaskSet newVehicleTasks = vehicleTasks.clone();
 				newVehicleTasks.add(task);
-				
 				TaskSet newTopologyTasks = topologyTasks.clone();
 				newTopologyTasks.remove(task);
-				
-				State nextState = new State(state, taskCity, newVehicleTasks, newTopologyTasks);
+				Plan newplan = plan;
+				newplan.appendMove(taskCity);
+				newplan.appendPickup(task);
+				State nextState = new State(taskCity, newVehicleTasks, newTopologyTasks, newplan);
 				succesors.add(nextState);
 			}
 		}
 
-		// Succesor deliver state
+		// Successor deliver state
 		for (Task task : vehicleTasks) {
 			City taskCity = task.deliveryCity;
 			TaskSet newVehicleTasks = vehicleTasks.clone();
 			newVehicleTasks.remove(task);
-			State nextState = new State(state, taskCity, newVehicleTasks, topologyTasks);
+			Plan newplan = plan;
+			newplan.appendMove(taskCity);
+			newplan.appendDelivery(task);
+			State nextState = new State(taskCity, newVehicleTasks, topologyTasks, newplan);
 			succesors.add(nextState);
 		}
 		return succesors;
-	}
-
-	public static Plan getPlanForFinalState(State finalState) {
-		// Plan plan = new Plan(null, null);
-		return null;
 	}
 
 }
