@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import java.util.Arrays;
 import logist.agent.Agent;
 import logist.simulation.Vehicle;
 import logist.task.Task;
@@ -16,7 +17,7 @@ public class MarkovDecissionProcessModel {
 
 	private static HashMap<State, City>bestAction = new HashMap<State, City>();
 	private static HashMap<State, Double>V = new HashMap<State, Double>();
-	private static HashMap<State, Double>Vprime = new HashMap<State, Double>();
+	private static HashMap<State, Double>Vprev = new HashMap<State, Double>();
 	private static HashMap<State, HashMap<City, Double>>Q = new HashMap<State, HashMap<City, Double>>();
 
 	private static List<State> allStates = new ArrayList<State>();
@@ -41,8 +42,8 @@ public class MarkovDecissionProcessModel {
 	private static void initializeMDP(){
 		for(State currState: allStates) {
 			bestAction.put(currState, null);
-			V.put(currState, 0.0);
-			Vprime.put(currState, 0.0);
+			V.put(currState, -100.0);
+			Vprev.put(currState, -100.0);
 		}
 	}
 
@@ -69,11 +70,11 @@ public class MarkovDecissionProcessModel {
 					innerQ.put(action, currentQ);
 					Q.put(state, innerQ);
 				}
-				double newVprime = V.get(state).doubleValue();
-				Vprime.put(state, newVprime);
+				double newVprev = V.get(state).doubleValue();
+				Vprev.put(state, newVprev);
 				
 				HashMap<City, Double> QsForActions = Q.get(state);
-				Double tmpBestQ = 0.0;
+				Double tmpBestQ = -100.0;
 				City tmpBestAction = null;
 				for(City qs: QsForActions.keySet()) {
 					Double tmpQ = QsForActions.get(qs).doubleValue();
@@ -90,6 +91,9 @@ public class MarkovDecissionProcessModel {
 		}
 		System.out.println("changeOfV " + changeOfV);
 		System.out.println("numberOfIterations " + numberOfIterations);
+		System.out.println(Arrays.asList(bestAction));
+
+
 	}
 	
 	public static City getBestAction(State s){
@@ -104,7 +108,7 @@ public class MarkovDecissionProcessModel {
 			City statePrimeDeliveryCity = statePrime.getDeliveryCity();
 			
 			if(statePrimeCurrentCity.equals(action)) {
-				t += (td.probability(statePrimeCurrentCity, statePrimeDeliveryCity) * Vprime.get(statePrime).doubleValue());
+				t += (td.probability(statePrimeCurrentCity, statePrimeDeliveryCity) * V.get(statePrime).doubleValue());
 			}
 		}
 		return t;
@@ -128,7 +132,7 @@ public class MarkovDecissionProcessModel {
 		double changeOfV = 0.0;
 		
 		for(State s : V.keySet()) {
-			double diff =  V.get(s).doubleValue() - Vprime.get(s).doubleValue();
+			double diff =  V.get(s).doubleValue() - Vprev.get(s).doubleValue();
 			changeOfV += diff;
 		}
 		
