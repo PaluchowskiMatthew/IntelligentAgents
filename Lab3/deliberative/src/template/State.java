@@ -11,28 +11,33 @@ import logist.topology.Topology.City;
 import logist.plan.Plan;
 
 
-public class State {
-	State parentState = null; // backtrack the states
+public class State {	
+	State parent=null;
 	
+	City initialCity; 
 	City currentCity; // current city where vehicle is located
 	TaskSet vehicleTasks; // tasks picked up by vehicle
 	TaskSet topologyTasks; // tasks awaiting to be delivered
+	Plan plan;
 	
-	
-	public State(State parentState, City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks) {
-		this.parentState = parentState;
+	public State(State parent, City initialCity, City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks, Plan plan) {
+		this.parent = parent;
+		this.initialCity = initialCity;
 		this.currentCity = currentCity;
 		this.vehicleTasks = vehicleTasks;
 		this.topologyTasks = topologyTasks;
+		this.plan = plan;
 	}
-
-	public State getParentState() {
-		return parentState;
-	}
-
-	public void setParentState(State parentState) {
-		this.parentState = parentState;
-	}
+	
+	public State copyState() {
+        Plan planCopy = new Plan(initialCity);
+        for (Action a : plan) {
+        		planCopy.append(a);
+        }
+        State newState = new State(parent, initialCity, currentCity, TaskSet.copyOf(vehicleTasks), TaskSet.copyOf(topologyTasks), planCopy);
+        return newState;
+    }
+	
 
 	public City getCurrentCity() {
 		return currentCity;
@@ -58,5 +63,16 @@ public class State {
 		this.topologyTasks = topologyTasks;
 	}
 	
+	public Plan getPlan() {
+		return plan;
+	}
+
+	public void setPlan(Plan plan) {
+		this.plan = plan;
+	}
+	
+	public Boolean isFinalState() {
+		return vehicleTasks.isEmpty() && topologyTasks.isEmpty();
+	}
 	
 }
