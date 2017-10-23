@@ -1,6 +1,8 @@
 package template;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import logist.plan.Plan;
@@ -11,7 +13,7 @@ import logist.topology.Topology.City;
 
 import template.State;
 
-public class BFS {
+public class AStar {
 	static List<State> Q = new ArrayList<State>();
 	static List<State> C = new ArrayList<State>();
 	static int agentCapacity;
@@ -19,13 +21,13 @@ public class BFS {
 	public static Plan createPlan(Vehicle vehicle, TaskSet tasks) {
 		agentCapacity = vehicle.capacity();
 
-		State finalState = BFSAlgorithm(vehicle, tasks);
+		State finalState = AStarAlgorithm(vehicle, tasks);
 		Plan plan = finalState.plan;
 		System.out.println(plan);
 		return plan;
 	}
 
-	public static State BFSAlgorithm(Vehicle vehicle, TaskSet tasks) {
+	public static State AStarAlgorithm(Vehicle vehicle, TaskSet tasks) {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
 
@@ -37,7 +39,7 @@ public class BFS {
 		do {
 			List<State> S = null;
 			if (Q.isEmpty()) {
-				System.out.println("BFS Error. Final State not found.");
+				System.out.println("AStar Error. Final State not found.");
 				break;
 			}
 			State n = Q.remove(0);
@@ -45,16 +47,33 @@ public class BFS {
 				finalState = n;
 				break;
 			}
-			if (!C.contains(n)) {
+			if (!C.contains(n) || C.get(C.indexOf(n)).plan.totalDistance() > n.plan.totalDistance() ) {
 				C.add(n);
 				S = getSuccessors(n);
+				S = sortSuccessors(n, S);
+				Q.addAll(S);
 			}
-			
-			Q.addAll(S);
-			// Q=S;
 		} while (true);
 
 		return finalState;
+	}
+	
+	private static List<State> sortSuccessors(State currentState, List<State> successors){
+		List<Double> distances = new ArrayList<Double>();
+		List<State> sortedSuccessors = new ArrayList<State>();
+		City currentCity = currentState.getCurrentCity();
+		for(State nextState : successors) {
+			City nextCity = nextState.getCurrentCity();
+			double distance = currentCity.distanceTo(nextCity);
+			distances.add(distance);
+		}
+		ArrayList<Double> distancesStore = new ArrayList<Double>(distances);
+		Collections.sort(distances, Collections.reverseOrder());
+		for (int n = 0; n < distances.size(); n++){
+		    int index = distancesStore.indexOf(distances.get(n));
+		    sortedSuccessors.add(n, successors.get(index));
+		}
+		return sortedSuccessors;
 	}
 
 	static List<Task> pickupsInCity(City c, State s) {
@@ -142,8 +161,6 @@ public class BFS {
 						nextState.topologyTasks.remove(pickupOnAWay);
 					}
 				}
-				
-		
 			}
 			nextState.currentCity = task.deliveryCity;
 			nextState.plan.appendDelivery(task);
