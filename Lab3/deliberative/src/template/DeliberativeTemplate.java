@@ -75,12 +75,14 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	}
 	
 	private Plan BFSPlan(Vehicle vehicle, TaskSet tasks) {
-		Plan plan = BFS.createPlan(vehicle, tasks);
+		BFS bfs = new BFS();
+		Plan plan = bfs.createPlan(vehicle, tasks);
 		return plan;
 	}
 	
 	private Plan AStarPlan(Vehicle vehicle, TaskSet tasks) {
-		Plan plan = AStar.createPlan(vehicle, tasks);
+		AStar astar = new AStar();
+		Plan plan = astar.createPlan(vehicle, tasks);
 		return plan;
 	}
 	
