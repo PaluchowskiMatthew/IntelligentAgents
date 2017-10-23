@@ -60,17 +60,12 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		// Compute the plan with the selected algorithm.
 		switch (algorithm) {
 		case ASTAR:
-			// ...
-//			plan = AStarPlan(vehicle, tasks);
-			plan = naivePlan(vehicle, tasks);
+			plan = AStarPlan(vehicle, tasks);
 			break;
 		case BFS:
-			// ...
-//			plan = naivePlan(vehicle, tasks);
 			plan = BFSPlan(vehicle, tasks);
 			break;
 		case NAIVE:
-			// ...
 			plan = naivePlan(vehicle, tasks);
 			break;
 		default:
@@ -81,6 +76,11 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	
 	private Plan BFSPlan(Vehicle vehicle, TaskSet tasks) {
 		Plan plan = BFS.createPlan(vehicle, tasks);
+		return plan;
+	}
+	
+	private Plan AStarPlan(Vehicle vehicle, TaskSet tasks) {
+		Plan plan = AStar.createPlan(vehicle, tasks);
 		return plan;
 	}
 	
