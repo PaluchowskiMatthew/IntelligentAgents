@@ -12,11 +12,11 @@ import logist.topology.Topology.City;
 import template.State;
 
 public class BFS {
-	static List<State> Q = new ArrayList<State>();
-	static List<State> C = new ArrayList<State>();
-	static int agentCapacity;
+	List<State> Q = new ArrayList<State>();
+	List<State> C = new ArrayList<State>();
+	int agentCapacity;
 
-	public static Plan createPlan(Vehicle vehicle, TaskSet tasks) {
+	public Plan createPlan(Vehicle vehicle, TaskSet tasks) {
 		agentCapacity = vehicle.capacity();
 
 		State finalState = BFSAlgorithm(vehicle, tasks);
@@ -25,7 +25,7 @@ public class BFS {
 		return plan;
 	}
 
-	public static State BFSAlgorithm(Vehicle vehicle, TaskSet tasks) {
+	public State BFSAlgorithm(Vehicle vehicle, TaskSet tasks) {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
 
@@ -49,7 +49,7 @@ public class BFS {
 				C.add(n);
 				S = getSuccessors(n);
 			}
-			
+
 			Q.addAll(S);
 			// Q=S;
 		} while (true);
@@ -57,7 +57,7 @@ public class BFS {
 		return finalState;
 	}
 
-	static List<Task> pickupsInCity(City c, State s) {
+	private List<Task> pickupsInCity(City c, State s) {
 		List<Task> pickups = new ArrayList<Task>();
 		for (Task t : s.getTopologyTasks()) {
 			if (t.pickupCity == c) {
@@ -67,7 +67,7 @@ public class BFS {
 		return pickups;
 	}
 
-	static List<Task> deliveriesForCity(City c, State s) {
+	private List<Task> deliveriesForCity(City c, State s) {
 		List<Task> deliveries = new ArrayList<Task>();
 		for (Task t : s.getVehicleTasks()) {
 			if (t.deliveryCity == c) {
@@ -77,8 +77,7 @@ public class BFS {
 		return deliveries;
 	}
 
-
-	private static List<State> getSuccessors(State state) {
+	private List<State> getSuccessors(State state) {
 		List<State> nextStates = new ArrayList<State>();
 
 		TaskSet vehicleTasks = state.getVehicleTasks();
@@ -98,23 +97,24 @@ public class BFS {
 					nextState.vehicleTasks.remove(deliveryOnAWay);
 					newVehicleTasks.remove(deliveryOnAWay);
 				}
-				if(city != task.pickupCity) {
-					for( Task pickupOnAWay : pickupsInCity(city, state)) {
-						if (((nextState.vehicleTasks.weightSum() + task.weight + pickupOnAWay.weight) < agentCapacity) ) {
+				if (city != task.pickupCity) {
+					for (Task pickupOnAWay : pickupsInCity(city, state)) {
+						if (((nextState.vehicleTasks.weightSum() + task.weight
+								+ pickupOnAWay.weight) < agentCapacity)) {
 							nextState.plan.appendPickup(pickupOnAWay);
 							nextState.vehicleTasks.add(pickupOnAWay);
 							nextState.topologyTasks.remove(pickupOnAWay);
 						}
 					}
 				}
-		
+
 			}
 			nextState.currentCity = task.pickupCity;
 			nextState.plan.appendPickup(task);
 			nextState.topologyTasks.remove(task);
 			nextState.vehicleTasks.add(task);
 
-			if (((nextState.vehicleTasks.weightSum() + task.weight) < agentCapacity) ) {
+			if (((nextState.vehicleTasks.weightSum() + task.weight) < agentCapacity)) {
 				nextStates.add(nextState);
 			}
 		}
@@ -122,28 +122,27 @@ public class BFS {
 		// Successor deliver state
 		for (Task task : newVehicleTasks) {
 			State nextState = state.copyState();
-			
+
 			// just go to delivery city, one step at a time.
 			for (City city : state.getCurrentCity().pathTo(task.deliveryCity)) {
 				nextState.plan.appendMove(city);
 
 				// IF there is a task to deliver on a way of task pickup then please do deliver
-				if(city != task.deliveryCity) {
+				if (city != task.deliveryCity) {
 					for (Task deliveryOnAWay : deliveriesForCity(city, state)) {
 						nextState.plan.appendDelivery(deliveryOnAWay);
 						nextState.vehicleTasks.remove(deliveryOnAWay);
 						newVehicleTasks.remove(deliveryOnAWay);
 					}
 				}
-				for( Task pickupOnAWay : pickupsInCity(city, state)) {
-					if (((nextState.vehicleTasks.weightSum() + pickupOnAWay.weight) < agentCapacity) ) {
+				for (Task pickupOnAWay : pickupsInCity(city, state)) {
+					if (((nextState.vehicleTasks.weightSum() + pickupOnAWay.weight) < agentCapacity)) {
 						nextState.plan.appendPickup(pickupOnAWay);
 						nextState.vehicleTasks.add(pickupOnAWay);
 						nextState.topologyTasks.remove(pickupOnAWay);
 					}
 				}
-				
-		
+
 			}
 			nextState.currentCity = task.deliveryCity;
 			nextState.plan.appendDelivery(task);
