@@ -11,17 +11,14 @@ import logist.topology.Topology.City;
 import logist.plan.Plan;
 
 
-public class State {	
-	State parent=null;
-	
+public class State {		
 	City initialCity; 
 	City currentCity; // current city where vehicle is located
 	TaskSet vehicleTasks; // tasks picked up by vehicle
 	TaskSet topologyTasks; // tasks awaiting to be delivered
 	Plan plan;
 	
-	public State(State parent, City initialCity, City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks, Plan plan) {
-		this.parent = parent;
+	public State(City initialCity, City currentCity, TaskSet vehicleTasks, TaskSet topologyTasks, Plan plan) {
 		this.initialCity = initialCity;
 		this.currentCity = currentCity;
 		this.vehicleTasks = vehicleTasks;
@@ -34,7 +31,7 @@ public class State {
         for (Action a : plan) {
         		planCopy.append(a);
         }
-        State newState = new State(parent, initialCity, currentCity, TaskSet.copyOf(vehicleTasks), TaskSet.copyOf(topologyTasks), planCopy);
+        State newState = new State(initialCity, currentCity, TaskSet.copyOf(vehicleTasks), TaskSet.copyOf(topologyTasks), planCopy);
         return newState;
     }
 	
