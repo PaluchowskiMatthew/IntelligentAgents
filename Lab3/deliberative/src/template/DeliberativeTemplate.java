@@ -60,10 +60,16 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		// Compute the plan with the selected algorithm.
 		switch (algorithm) {
 		case ASTAR:
+			long start = System.currentTimeMillis();
 			plan = AStarPlan(vehicle, tasks);
+			long end = System.currentTimeMillis();
+			System.out.println("Time ASTAR "+ (end - start)/1000.0);
 			break;
 		case BFS:
+			long start2 = System.currentTimeMillis();
 			plan = BFSPlan(vehicle, tasks);
+			long end2 = System.currentTimeMillis();
+			System.out.println("Time BFS "+ (end2 - start2)/1000.0);
 			break;
 		case NAIVE:
 			plan = naivePlan(vehicle, tasks);

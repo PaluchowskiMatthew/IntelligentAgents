@@ -74,7 +74,7 @@ public class AStar {
 			int index = nextStates.indexOf(nextState);
 			City nextCity = nextState.getCurrentCity();
 			
-			long newReward = rewards.get(index) - (long) (costPerKm * currentCity.distanceTo(nextCity));
+			long newReward = rewards.get(index);
 			newRewards.add(newReward);
 		}
 		ArrayList<Long> newRewardsStore = new ArrayList<Long>(newRewards);
@@ -141,12 +141,23 @@ public class AStar {
 		TaskSet vehicleTasks = state.getVehicleTasks();
 		TaskSet topologyTasks = state.getTopologyTasks();
 
-		List<Task> newVehicleTasks = new ArrayList<Task>(vehicleTasks);
+
 		// Successor pickup state
 		for (Task task : topologyTasks) {
 			State nextState = state.copyState();
 			Long nextReward = 0l;
 			City previousCity = state.getCurrentCity();
+			
+			// if we start in some city we want to pick up tasks straight away
+			for (Task pickupOnAWay : pickupsInCity(previousCity, state)) {
+				if (((nextState.vehicleTasks.weightSum() + task.weight
+						+ pickupOnAWay.weight) < agentCapacity) && pickupOnAWay != task) {
+					nextState.plan.appendPickup(pickupOnAWay);
+					nextState.vehicleTasks.add(pickupOnAWay);
+					nextState.topologyTasks.remove(pickupOnAWay);
+					nextReward += pickupOnAWay.reward * (2 / 4);
+				}
+			}
 
 			for (City city : state.getCurrentCity().pathTo(task.pickupCity)) {
 				nextState.plan.appendMove(city);
@@ -157,27 +168,26 @@ public class AStar {
 				for (Task deliveryOnAWay : deliveriesForCity(city, state)) {
 					nextState.plan.appendDelivery(deliveryOnAWay);
 					nextState.vehicleTasks.remove(deliveryOnAWay);
-					newVehicleTasks.remove(deliveryOnAWay);
-					nextReward += deliveryOnAWay.reward * (3 / 4);
+					nextReward += deliveryOnAWay.reward * (2 / 4);
 				}
-				if (city != task.pickupCity) {
-					for (Task pickupOnAWay : pickupsInCity(city, state)) {
-						if (((nextState.vehicleTasks.weightSum() + task.weight
-								+ pickupOnAWay.weight) < agentCapacity)) {
-							nextState.plan.appendPickup(pickupOnAWay);
-							nextState.vehicleTasks.add(pickupOnAWay);
-							nextState.topologyTasks.remove(pickupOnAWay);
-							nextReward += pickupOnAWay.reward * (1 / 4);
-						}
+				
+				for (Task pickupOnAWay : pickupsInCity(city, state)) {
+					if (((nextState.vehicleTasks.weightSum() + task.weight
+							+ pickupOnAWay.weight) < agentCapacity) && pickupOnAWay != task) {
+						nextState.plan.appendPickup(pickupOnAWay);
+						nextState.vehicleTasks.add(pickupOnAWay);
+						nextState.topologyTasks.remove(pickupOnAWay);
+						nextReward += pickupOnAWay.reward * (900 / 4);
 					}
 				}
+				
 
 			}
 			nextState.currentCity = task.pickupCity;
 			nextState.plan.appendPickup(task);
 			nextState.topologyTasks.remove(task);
 			nextState.vehicleTasks.add(task);
-			nextReward += task.reward * (1 / 4);
+			nextReward += task.reward * (900 / 4);
 
 			if (((nextState.vehicleTasks.weightSum() + task.weight) < agentCapacity)) {
 				nextStates.add(nextState);
@@ -186,7 +196,7 @@ public class AStar {
 		}
 
 		// Successor deliver state
-		for (Task task : newVehicleTasks) {
+		for (Task task : vehicleTasks) {
 			State nextState = state.copyState();
 			City previousCity = state.getCurrentCity();
 			Long nextReward = 0l;
@@ -202,8 +212,7 @@ public class AStar {
 					for (Task deliveryOnAWay : deliveriesForCity(city, state)) {
 						nextState.plan.appendDelivery(deliveryOnAWay);
 						nextState.vehicleTasks.remove(deliveryOnAWay);
-						newVehicleTasks.remove(deliveryOnAWay);
-						nextReward += deliveryOnAWay.reward * (3 / 4);
+						nextReward += deliveryOnAWay.reward * (2 / 4);
 					}
 				}
 				for (Task pickupOnAWay : pickupsInCity(city, state)) {
@@ -218,7 +227,7 @@ public class AStar {
 			nextState.currentCity = task.deliveryCity;
 			nextState.plan.appendDelivery(task);
 			nextState.vehicleTasks.remove(task);
-			nextReward += task.reward * (3 / 4);
+			nextReward += task.reward * (2 / 4);
 			rewards.add(nextReward);
 			nextStates.add(nextState);
 		}
