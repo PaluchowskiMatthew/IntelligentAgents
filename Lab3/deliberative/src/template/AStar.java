@@ -33,7 +33,7 @@ public class AStar {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
 
-		State initialState = new State(null, vehicle.getCurrentCity(), vehicle.getCurrentCity(),
+		State initialState = new State(vehicle.getCurrentCity(), vehicle.getCurrentCity(),
 				vehicle.getCurrentTasks(), tasks, plan); // n
 		Q.add(initialState);
 
