@@ -168,7 +168,6 @@ public class AStar {
 				for (Task deliveryOnAWay : deliveriesForCity(city, state)) {
 					nextState.plan.appendDelivery(deliveryOnAWay);
 					nextState.vehicleTasks.remove(deliveryOnAWay);
-					nextReward += deliveryOnAWay.reward * 50;
 				}
 				
 				for (Task pickupOnAWay : pickupsInCity(city, state)) {
@@ -219,6 +218,7 @@ public class AStar {
 						nextState.plan.appendPickup(pickupOnAWay);
 						nextState.vehicleTasks.add(pickupOnAWay);
 						nextState.topologyTasks.remove(pickupOnAWay);
+						nextReward += pickupOnAWay.reward * 100;
 					}
 				}
 			}
