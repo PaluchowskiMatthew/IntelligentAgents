@@ -4,3 +4,72 @@
 	<agents>
 		<agent name="deliberative-random">
 			<vehicle name="Vehicle 1"/>
+		</agent>
+	</agents>
+	<rounds>
+		<round id="1">
+			<tasks>
+				<task id="0" pickup="Sion" delivery="Genève" weight="3" reward="59223"/>
+				<task id="1" pickup="Aarau" delivery="Bern" weight="3" reward="85727"/>
+				<task id="2" pickup="Aarau" delivery="Bern" weight="3" reward="85727"/>
+				<task id="3" pickup="Sion" delivery="Genève" weight="3" reward="59223"/>
+				<task id="4" pickup="St-Gallen" delivery="Aarau" weight="3" reward="71456"/>
+				<task id="5" pickup="Lausanne" delivery="Luzern" weight="3" reward="36797"/>
+				<task id="6" pickup="Aarau" delivery="Genève" weight="3" reward="36797"/>
+				<task id="7" pickup="Bern" delivery="St-Gallen" weight="3" reward="49030"/>
+				<task id="8" pickup="Basel" delivery="Bern" weight="3" reward="79611"/>
+			</tasks>
+			<events>
+				<event id="0" time="0" vehicle="Vehicle 1" pickup="5"/>
+				<event id="1" time="299999997" vehicle="Vehicle 1" move="Sion"/>
+				<event id="2" time="1966666617" vehicle="Vehicle 1" pickup="3"/>
+				<event id="3" time="2266666608" vehicle="Vehicle 1" pickup="0"/>
+				<event id="4" time="2566666600" vehicle="Vehicle 1" move="Thun"/>
+				<event id="5" time="3899999894" vehicle="Vehicle 1" move="Bern"/>
+				<event id="6" time="4344444327" vehicle="Vehicle 1" pickup="7"/>
+				<event id="7" time="4644444321" vehicle="Vehicle 1" move="Basel"/>
+				<event id="8" time="6199999840" vehicle="Vehicle 1" pickup="8"/>
+				<event id="9" time="6499999833" vehicle="Vehicle 1" move="Zürich"/>
+				<event id="10" time="7833333134" vehicle="Vehicle 1" move="St-Gallen"/>
+				<event id="11" time="9166666427" vehicle="Vehicle 1" deliver="7"/>
+				<event id="12" time="9466666418" vehicle="Vehicle 1" pickup="4"/>
+				<event id="13" time="9766666409" vehicle="Vehicle 1" move="Zürich"/>
+				<event id="14" time="11099999704" vehicle="Vehicle 1" move="Aarau"/>
+				<event id="15" time="11766666354" vehicle="Vehicle 1" deliver="4"/>
+				<event id="16" time="12066666346" vehicle="Vehicle 1" pickup="1"/>
+				<event id="17" time="12366666338" vehicle="Vehicle 1" pickup="2"/>
+				<event id="18" time="12666666328" vehicle="Vehicle 1" pickup="6"/>
+				<event id="19" time="12966666318" vehicle="Vehicle 1" move="Bern"/>
+				<event id="20" time="14188888503" vehicle="Vehicle 1" deliver="8"/>
+				<event id="21" time="14488888494" vehicle="Vehicle 1" move="Fribourg"/>
+				<event id="22" time="15044444034" vehicle="Vehicle 1" move="Lausanne"/>
+				<event id="23" time="16155555114" vehicle="Vehicle 1" move="Genève"/>
+				<event id="24" time="17155555090" vehicle="Vehicle 1" deliver="0"/>
+				<event id="25" time="17455555081" vehicle="Vehicle 1" deliver="3"/>
+				<event id="26" time="17755555071" vehicle="Vehicle 1" move="Lausanne"/>
+				<event id="27" time="18755555043" vehicle="Vehicle 1" move="Fribourg"/>
+				<event id="28" time="19866666123" vehicle="Vehicle 1" move="Bern"/>
+				<event id="29" time="20422221662" vehicle="Vehicle 1" deliver="1"/>
+				<event id="30" time="20722221655" vehicle="Vehicle 1" deliver="2"/>
+				<event id="31" time="21022221647" vehicle="Vehicle 1" move="Aarau"/>
+				<event id="32" time="22244443838" vehicle="Vehicle 1" move="Luzern"/>
+				<event id="33" time="23244443807" vehicle="Vehicle 1" deliver="5"/>
+				<event id="34" time="23544443799" vehicle="Vehicle 1" move="Aarau"/>
+				<event id="35" time="24544443776" vehicle="Vehicle 1" move="Bern"/>
+				<event id="36" time="25766665970" vehicle="Vehicle 1" move="Fribourg"/>
+				<event id="37" time="26322221512" vehicle="Vehicle 1" move="Lausanne"/>
+				<event id="38" time="27433332593" vehicle="Vehicle 1" move="Genève"/>
+				<event id="39" time="28433332564" vehicle="Vehicle 1" deliver="6"/>
+			</events>
+		</round>
+	</rounds>
+	<statistics>
+		<stat rank="1" agent="deliberative-random">
+			<total-tasks value="9"/>
+			<total-distance value="2100.0"/>
+			<total-cost value="10500"/>
+			<total-reward value="563591"/>
+			<total-profit value="553091"/>
+		</stat>
+	</statistics>
+</history>
