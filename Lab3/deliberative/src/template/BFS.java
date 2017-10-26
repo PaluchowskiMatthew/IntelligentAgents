@@ -10,6 +10,7 @@ import logist.task.TaskSet;
 import logist.topology.Topology.City;
 
 import template.State;
+import template.AStar.StatesRewards;
 
 public class BFS {
 	List<State> Q = new ArrayList<State>();
@@ -83,30 +84,41 @@ public class BFS {
 		TaskSet vehicleTasks = state.getVehicleTasks();
 		TaskSet topologyTasks = state.getTopologyTasks();
 
-		List<Task> newVehicleTasks = new ArrayList<Task>(vehicleTasks);
+
 		// Successor pickup state
 		for (Task task : topologyTasks) {
 			State nextState = state.copyState();
+			City previousCity = state.getCurrentCity();
+			
+			// if we start in some city we want to pick up tasks straight away
+			for (Task pickupOnAWay : pickupsInCity(previousCity, state)) {
+				if (((nextState.vehicleTasks.weightSum() + task.weight
+						+ pickupOnAWay.weight) < agentCapacity) && pickupOnAWay != task) {
+					nextState.plan.appendPickup(pickupOnAWay);
+					nextState.vehicleTasks.add(pickupOnAWay);
+					nextState.topologyTasks.remove(pickupOnAWay);
+				}
+			}
 
 			for (City city : state.getCurrentCity().pathTo(task.pickupCity)) {
 				nextState.plan.appendMove(city);
+				previousCity = city;
 
 				// IF there is a task to deliver on a way of task pickup then please do deliver
 				for (Task deliveryOnAWay : deliveriesForCity(city, state)) {
 					nextState.plan.appendDelivery(deliveryOnAWay);
 					nextState.vehicleTasks.remove(deliveryOnAWay);
-					newVehicleTasks.remove(deliveryOnAWay);
 				}
-				if (city != task.pickupCity) {
-					for (Task pickupOnAWay : pickupsInCity(city, state)) {
-						if (((nextState.vehicleTasks.weightSum() + task.weight
-								+ pickupOnAWay.weight) < agentCapacity)) {
-							nextState.plan.appendPickup(pickupOnAWay);
-							nextState.vehicleTasks.add(pickupOnAWay);
-							nextState.topologyTasks.remove(pickupOnAWay);
-						}
+				
+				for (Task pickupOnAWay : pickupsInCity(city, state)) {
+					if (((nextState.vehicleTasks.weightSum() + task.weight
+							+ pickupOnAWay.weight) < agentCapacity) && pickupOnAWay != task) {
+						nextState.plan.appendPickup(pickupOnAWay);
+						nextState.vehicleTasks.add(pickupOnAWay);
+						nextState.topologyTasks.remove(pickupOnAWay);
 					}
 				}
+				
 
 			}
 			nextState.currentCity = task.pickupCity;
@@ -120,19 +132,20 @@ public class BFS {
 		}
 
 		// Successor deliver state
-		for (Task task : newVehicleTasks) {
+		for (Task task : vehicleTasks) {
 			State nextState = state.copyState();
+			City previousCity = state.getCurrentCity();
 
 			// just go to delivery city, one step at a time.
 			for (City city : state.getCurrentCity().pathTo(task.deliveryCity)) {
 				nextState.plan.appendMove(city);
+				previousCity = city;
 
 				// IF there is a task to deliver on a way of task pickup then please do deliver
 				if (city != task.deliveryCity) {
 					for (Task deliveryOnAWay : deliveriesForCity(city, state)) {
 						nextState.plan.appendDelivery(deliveryOnAWay);
 						nextState.vehicleTasks.remove(deliveryOnAWay);
-						newVehicleTasks.remove(deliveryOnAWay);
 					}
 				}
 				for (Task pickupOnAWay : pickupsInCity(city, state)) {
@@ -142,14 +155,13 @@ public class BFS {
 						nextState.topologyTasks.remove(pickupOnAWay);
 					}
 				}
-
 			}
 			nextState.currentCity = task.deliveryCity;
 			nextState.plan.appendDelivery(task);
 			nextState.vehicleTasks.remove(task);
 			nextStates.add(nextState);
-
 		}
+		
 		return nextStates;
 	}
 
