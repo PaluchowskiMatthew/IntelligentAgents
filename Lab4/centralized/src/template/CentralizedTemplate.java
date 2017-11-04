@@ -75,6 +75,14 @@ public class CentralizedTemplate implements CentralizedBehavior {
         
         return plans;
     }
+    
+    private List<Plan> centralizedPlan(List<Vehicle> vehicles, TaskSet tasks) {
+    	
+    		CSP csp = new CSP(vehicles, tasks);
+    		List <Plan> plans = csp.createCentralizedPlan();
+    		
+    		return plans;
+    }
 
     private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
         City current = vehicle.getCurrentCity();
