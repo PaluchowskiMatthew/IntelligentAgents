@@ -79,7 +79,7 @@ public class CSP {
 			previousVehicleTask = cspTask;
 
 			timePoint += 1;
-			timeInTrunk += 1;
+//			timeInTrunk += 1;
 		}
 		return initialSolution;
 	}
