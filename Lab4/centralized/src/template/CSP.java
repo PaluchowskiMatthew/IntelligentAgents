@@ -223,7 +223,7 @@ public class CSP {
 		CSPSolution A1 = A;
 		CSPTask t = A.getNextTask(v1);
 		int v1TimeInTrunk = t.timeInTrunk; // Added
-		CSPTask tForV1 = A1.getNextTask(t);
+		CSPTask tForV1 = A.getNextTask(t);
 		tForV1.timeInTrunk = v1TimeInTrunk; // Added
 
 		A1.setNextTask(v1, tForV1);
@@ -278,6 +278,7 @@ public class CSP {
 			if (tPre1 == null) {
 				A1.setNextTask(vi, t2);
 			} else {
+
 				A1.setNextTask(tPre1, t2);
 			}
 			A1.setNextTask(tPre2, t1);
@@ -288,6 +289,7 @@ public class CSP {
 
 		for (int tit1 = 1; tit1 < (nbTasks - tIdx1 + 1); tit1++) {
 			for (int tit2 = 1; tit2 < (nbTasks - tIdx2 + 1); tit2++) {
+
 				t1.timeInTrunk = tit1;
 				t2.timeInTrunk = tit2;
 				if (checkIfPossibeSolution(A1, vi)) {
