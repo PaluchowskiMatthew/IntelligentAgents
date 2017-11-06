@@ -45,7 +45,7 @@ public class CSPSolution {
 			
 			for (CSPTask key: vehicle.keySet()) {
 				Vehicle v = vehicle.get(key);
-				if(!vehiclesInvolved.contains(v)) {
+				if(v != null && !vehiclesInvolved.contains(v)) {
 					vehiclesInvolved.add(v);
 				}
 			}
@@ -56,7 +56,9 @@ public class CSPSolution {
 			List<CSPTask> cspTasks = new ArrayList<CSPTask>();
 			
 			for (CSPTask key: vehicle.keySet()) {
-				cspTasks.add(key);
+				if(key != null) {
+					cspTasks.add(key);
+				}
 			}
 			
 			return cspTasks;

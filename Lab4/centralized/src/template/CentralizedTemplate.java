@@ -82,7 +82,6 @@ public class CentralizedTemplate implements CentralizedBehavior {
     	
     		CSP csp = new CSP(vehicles, tasks, 0.5, 10000);
     		List <Plan> plans = csp.createCentralizedPlan();
-    		
     		return plans;
     }
 

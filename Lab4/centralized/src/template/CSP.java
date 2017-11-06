@@ -47,7 +47,8 @@ public class CSP {
 				CSPTask firstTask = bestSolution.getNextTask(vehicle);
 				Task task = firstTask.task;
 				
-				for (City city : current.pathTo(task.pickupCity)) {
+				City startingPoint = current;
+				for (City city : startingPoint.pathTo(task.pickupCity)) {
 	                plan.appendMove(city);
 	                current = city;
 	            }
@@ -59,7 +60,7 @@ public class CSP {
 					
 					List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask);
 					for(Task toDeliver: shortestDeliveries) {
-						City startingPoint = current;
+						startingPoint = current;
 						for (City city : startingPoint.pathTo(toDeliver.deliveryCity)) {
 			                plan.appendMove(city);
 			                current = city;
@@ -69,7 +70,7 @@ public class CSP {
 					
 					CSPTask nextTask = bestSolution.getNextTask(currentTask);
 					if(nextTask != null) {
-						City startingPoint = current;
+						startingPoint = current;
 						for (City city : startingPoint.pathTo(nextTask.task.pickupCity)) {
 			                plan.appendMove(city);
 			                current = city;
@@ -78,6 +79,7 @@ public class CSP {
 					}
 					currentTask = nextTask;
 				}
+				plans.add(plan);
 			}
 		}
 		return plans;
@@ -85,13 +87,14 @@ public class CSP {
 	
 	public CSPSolution calculateCSP() {
 		CSPSolution A = selectInitialSolution();
-		int iteration = 1;
-		do {
-			CSPSolution Aold = new CSPSolution(A);
-			List<CSPSolution> N = chooseNeighbours(Aold);
-			A = localChoice(N);
-			iteration += 1;
-		} while (iteration < iterations);
+//		int iteration = 1;
+//		do {
+//			CSPSolution Aold = new CSPSolution(A);
+//			List<CSPSolution> N = chooseNeighbours(Aold);
+//			A = localChoice(N);
+//			iteration += 1;
+//		} while (iteration < iterations);
+		System.out.println("debug");
 		return A;
 	}
 
@@ -194,6 +197,11 @@ public class CSP {
 	
 	List<Task> shortestDeliveryPath(CSPSolution A, CSPTask ti) {
 		List<Task> deliveryTasks= getDeliveryTasks(A, ti);
+		
+		if(deliveryTasks.size() < 2) {
+			return deliveryTasks;
+		}
+		
 		CSPTask tj = A.getNextTask(ti);
 		City start = ti.task.pickupCity;
 		City end = tj.task.pickupCity;
@@ -238,7 +246,7 @@ public class CSP {
 		int taskTime = A.getTime(task);
 		Vehicle v = A.getVehicle(task);
 		CSPTask current = A.getNextTask(v);
-		for (int time = 1; time < taskTime; time++) {
+		for (int time = 0; time < taskTime+1; time++) {
 			if (current.timeInTrunk - (taskTime - time) == 1) {
 				deliveries.add(current.task);
 			}
