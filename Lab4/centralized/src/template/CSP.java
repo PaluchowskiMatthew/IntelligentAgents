@@ -93,9 +93,9 @@ public class CSP {
 		if (length >= 2) {
 			for(int tIdx1=1; tIdx1 <= length-1; tIdx1++) {
 				for(int tIdx2=tIdx1+1; tIdx2 <= length; tIdx2++) {
-					CSPSolution A = changeTaskOrder(Aold, vi, tIdx1, tIdx2);
-					if (A != null) {
-						N.add(A);
+					List<CSPSolution> A = changeTaskOrder(Aold, vi, tIdx1, tIdx2);
+					if (!A.isEmpty()) {
+						N.addAll(A);
 					}
 				}
 			}
