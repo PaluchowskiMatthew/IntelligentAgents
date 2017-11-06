@@ -38,35 +38,35 @@ public class CSPSolution {
 
 		}
 		
-		CSPTask	getNextTask(Vehicle v) {
+		public CSPTask getNextTask(Vehicle v) {
 			return cspTasksForVehicleAction.get(v);
 		}
 		
-		void setNextTask(Vehicle v, CSPTask cspTask) {
+		public void setNextTask(Vehicle v, CSPTask cspTask) {
 			cspTasksForVehicleAction.put(v, cspTask);
 		}
 		
-		CSPTask	getNextTask(CSPTask cspTask) {
+		public CSPTask	getNextTask(CSPTask cspTask) {
 			return cspTasksForCSPTask.get(cspTask);
 		}
 		
-		void setNextTask(CSPTask key, CSPTask cspTask) {
+		public void setNextTask(CSPTask key, CSPTask cspTask) {
 			cspTasksForCSPTask.put(key, cspTask);
 		}
 		
-		int	getTime(CSPTask cspTask) {
+		public int	getTime(CSPTask cspTask) {
 			return time.get(cspTask);
 		}
 		
-		void setTime(CSPTask key, Integer t) {
+		public void setTime(CSPTask key, int t) {
 			time.put(key, t);
 		}
 		
-		Vehicle	getVehicle(CSPTask cspTask) {
+		public Vehicle	getVehicle(CSPTask cspTask) {
 			return vehicle.get(cspTask);
 		}
 		
-		void setVehicle(CSPTask key, Vehicle v) {
+		public void setVehicle(CSPTask key, Vehicle v) {
 			vehicle.put(key, v);
 		}
 		
