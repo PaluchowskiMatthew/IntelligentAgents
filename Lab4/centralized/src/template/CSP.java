@@ -108,7 +108,7 @@ public class CSP {
 		CSPSolution A1 = A;
 		CSPTask t = A.getNextTask(v1);
 		int v1TimeInTrunk = t.timeInTrunk; // Added
-		CSPTask tForV1 = A1.getNextTask(t);
+		CSPTask tForV1 = A.getNextTask(t);
 		tForV1.timeInTrunk = v1TimeInTrunk; // Added
 
 		A1.setNextTask(v1, tForV1);
@@ -116,12 +116,8 @@ public class CSP {
 		t.timeInTrunk = 1;
 		A1.setNextTask(v2, t);
 		updateTime(A1, v1);
-		updateTime(A1, v2); // I added it. necessary?
+		updateTime(A1, v2); 
 		A1.setVehicle(t, v2);
-		// refactored proposed check. would add it elsewhere:
-		// if(checkIfPossibeSolution(A1, v){
-		// return A1;
-		// }
 		if (checkIfPossibeSolution(A1, v1) && checkIfPossibeSolution(A1, v2)) {
 			return A1;
 		} else {
@@ -129,17 +125,20 @@ public class CSP {
 		}
 	}
 
-	CSPSolution changeTaskOrder(CSPSolution A, Vehicle vi, int tIdx1, int tIdx2) {
+	List<CSPSolution> changeTaskOrder(CSPSolution A, Vehicle vi, int tIdx1, int tIdx2) {
+		List<CSPSolution> N = new ArrayList<CSPSolution>();
+		int nbTasks = amountOfTasks(A, vi);
 		CSPSolution A1 = A;
-		Vehicle tPre1 = vi;
 		CSPTask t1 = A1.getNextTask(vi);
 		int count = 1;
-
+		CSPTask tPre1 = null;
 		while (count < tIdx1) {
-			CSPTask tPre1 = t1;
+			tPre1 = t1;
 			t1 = A1.getNextTask(t1);
 			count += 1;
 		}
+		
+		
 		CSPTask tPost1 = A1.getNextTask(t1);
 		CSPTask tPre2 = t1;
 		CSPTask t2 = A1.getNextTask(tPre2);
@@ -153,21 +152,38 @@ public class CSP {
 		CSPTask tPost2 = A1.getNextTask(t2);
 		// imho cspTask.time should be updated here as well
 		if (tPost1 == t2) {
-			A1.setNextTask(tPre1, t2);
+			if(tPre1 == null) {
+				A1.setNextTask(vi, t2);
+			}
+			else {
+				A1.setNextTask(tPre1, t2);
+			}
+			
 			A1.setNextTask(t2, t1);
 			A1.setNextTask(t1, tPost2);
 		} else {
-			A1.setNextTask(tPre1, t2);
+			if(tPre1 == null) {
+				A1.setNextTask(vi, t2);
+			}
+			else {
+				A1.setNextTask(tPre1, t2);
+			}
 			A1.setNextTask(tPre2, t1);
 			A1.setNextTask(t2, tPost1);
 			A1.setNextTask(t1, tPost2);
 		}
 		updateTime(A1, vi);
-		if (checkIfPossibeSolution(A1, vi)) {
-			return A1;
-		} else {
-			return null;
+		
+		for(int tit1 = 1; tit1 < (nbTasks - tIdx1 + 1); tit1 ++) {
+			for(int tit2 = 1; tit2 < (nbTasks - tIdx2 + 1); tit2 ++) {
+				t1.timeInTrunk = tit1;
+				t2.timeInTrunk = tit2;
+				if (checkIfPossibeSolution(A1, vi)) {
+					N.add(A1);
+				}
+			}
 		}
+		return N;
 	}
 
 	int weight(CSPSolution A, Vehicle v, int timePoint) {
@@ -176,6 +192,7 @@ public class CSP {
 		for (int i = 1; i < timePoint + 1; i++) {
 			if (current.timeInTrunk > timePoint - i) {
 				weight += current.task.weight;
+				current = A.getNextTask(current);
 			}
 		}
 		return weight;

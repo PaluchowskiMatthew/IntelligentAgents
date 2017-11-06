@@ -9,5 +9,15 @@
 	<classpathentry kind="lib" path="C:/path_to_the_libraries/jsolver.jar"/>
 	<classpathentry kind="lib" path="C:/path_to_the_libraries/plot.jar"/>
 	<classpathentry kind="lib" path="C:/path_to_the_libraries/repast.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/IntelligentAgents/Lab2/logist/logist.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/logist.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/colt.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/commons-math-1.1.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/jdom.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/jsolver.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/logist.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/plot.jar"/>
+	<classpathentry kind="lib" path="/Users/Vincent/Documents/GitHub/IntelligentAgents/Libraries/intelagent_jars/repast.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
