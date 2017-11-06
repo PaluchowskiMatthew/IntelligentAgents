@@ -1,5 +1,6 @@
 package template;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class CSPSolution {
 					CSPTask cspTask = new CSPTask(task, i);
 					cspTasksForCSPTask.put(cspTask, null);
 					time.put(cspTask, 0);
+					vehicle.put(cspTask, null);
 				}
 			}
 		}
@@ -36,6 +38,29 @@ public class CSPSolution {
 			this.time = differentSolution.time;
 			this.vehicle = differentSolution.vehicle;
 
+		}
+		
+		public List<Vehicle> getInvolvedVehicles(){
+			List<Vehicle> vehiclesInvolved = new ArrayList<Vehicle>();
+			
+			for (CSPTask key: vehicle.keySet()) {
+				Vehicle v = vehicle.get(key);
+				if(!vehiclesInvolved.contains(v)) {
+					vehiclesInvolved.add(v);
+				}
+			}
+
+			return vehiclesInvolved;
+		}
+		
+		public List<CSPTask> getAllCSPTasks(){
+			List<CSPTask> cspTasks = new ArrayList<CSPTask>();
+			
+			for (CSPTask key: vehicle.keySet()) {
+				cspTasks.add(key);
+			}
+			
+			return cspTasks;
 		}
 		
 		public CSPTask getNextTask(Vehicle v) {
