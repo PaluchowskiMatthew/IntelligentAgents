@@ -49,7 +49,6 @@ public class CSPSolution {
 					vehiclesInvolved.add(v);
 				}
 			}
-
 			return vehiclesInvolved;
 		}
 		

@@ -21,17 +21,35 @@ public class CSP {
 	// If there are multiple equally good assignments,
 	// it chooses one randomly. Then with probability p it returns A,
 	// with probability 1 − p it returns the current assignment Aold.
-	float probability;
+	double probability;
 	int iterations;
 
-	public CSP(List<Vehicle> vehicles, TaskSet deliveryTasks, float p, int iterations) {
+	public CSP(List<Vehicle> vehicles, TaskSet deliveryTasks, double p, int iterations) {
 		this.vehicles = vehicles;
 		this.deliveryTasks = deliveryTasks;
 		this.probability = p;
 		this.iterations = iterations;
 	}
 
-	public CSPSolution createCentralizedPlan() {
+	public List<Plan> createCentralizedPlan() {
+		List<Plan> plans = new ArrayList<Plan>();
+		
+		CSPSolution bestSolution = calculateCSP();
+		
+		List<Vehicle> involvedVehicles = bestSolution.getInvolvedVehicles();
+		for(Vehicle v: vehicles) {
+			if(!involvedVehicles.contains(v)) {
+				plans.add(Plan.EMPTY);
+			}
+			else {
+				
+			}
+		}
+		
+		return plans;
+	}
+	
+	public CSPSolution calculateCSP() {
 		CSPSolution A = selectInitialSolution();
 		int iteration = 1;
 		do {
