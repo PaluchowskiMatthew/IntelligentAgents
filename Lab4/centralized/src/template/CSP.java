@@ -37,15 +37,49 @@ public class CSP {
 		CSPSolution bestSolution = calculateCSP();
 		
 		List<Vehicle> involvedVehicles = bestSolution.getInvolvedVehicles();
-		for(Vehicle v: vehicles) {
-			if(!involvedVehicles.contains(v)) {
+		for(Vehicle vehicle: vehicles) {
+			if(!involvedVehicles.contains(vehicle)) {
 				plans.add(Plan.EMPTY);
 			}
 			else {
+				City current = vehicle.getCurrentCity();
+				Plan plan = new Plan(current);
+				CSPTask firstTask = bestSolution.getNextTask(vehicle);
+				Task task = firstTask.task;
 				
+				for (City city : current.pathTo(task.pickupCity)) {
+	                plan.appendMove(city);
+	                current = city;
+	            }
+				plan.appendPickup(firstTask.task);
+				
+				CSPTask currentTask = firstTask;
+
+				while(currentTask != null) {
+					
+					List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask);
+					for(Task toDeliver: shortestDeliveries) {
+						City startingPoint = current;
+						for (City city : startingPoint.pathTo(toDeliver.deliveryCity)) {
+			                plan.appendMove(city);
+			                current = city;
+			            }
+						plan.appendDelivery(task);
+					}
+					
+					CSPTask nextTask = bestSolution.getNextTask(currentTask);
+					if(nextTask != null) {
+						City startingPoint = current;
+						for (City city : startingPoint.pathTo(nextTask.task.pickupCity)) {
+			                plan.appendMove(city);
+			                current = city;
+			            }
+						plan.appendPickup(nextTask.task);
+					}
+					currentTask = nextTask;
+				}
 			}
 		}
-		
 		return plans;
 	}
 	
@@ -133,7 +167,7 @@ public class CSP {
 	}
 
 	double distanceNextStep(CSPSolution A, CSPTask ti) {
-		List<City> deliveryCities= getDeliveries(A, ti);
+		List<City> deliveryCities= getDeliveryCities(A, ti);
 		CSPTask tj = A.getNextTask(ti);
 		City start = ti.task.pickupCity;
 		City end = tj.task.pickupCity;
@@ -157,8 +191,36 @@ public class CSP {
 
 		return shortestDelivery;
 	}
+	
+	List<Task> shortestDeliveryPath(CSPSolution A, CSPTask ti) {
+		List<Task> deliveryTasks= getDeliveryTasks(A, ti);
+		CSPTask tj = A.getNextTask(ti);
+		City start = ti.task.pickupCity;
+		City end = tj.task.pickupCity;
+		
+	    Collection<List<Task>> deliveryPermutations = Collections2.permutations(deliveryTasks);
+	    
+	    double shortestDelivery = Double.MAX_VALUE;
+	    List<Task> shortestTaskPath = null;
+	    for (List<Task> tasks : deliveryPermutations) {
+	        double distance = start.distanceTo(tasks.get(0).deliveryCity);
+	    		for(int i=0; i < tasks.size()-1; i++) {
+	    			Task task1 = tasks.get(i);
+	    			Task task2 = tasks.get(i+1);
+	    			distance += task1.deliveryCity.distanceTo(task2.deliveryCity);
+	    		}
+	    		distance += tasks.get(tasks.size()-1).deliveryCity.distanceTo(end);
+	    		
+	    		if(distance < shortestDelivery) {
+	    			shortestDelivery = distance;
+	    			shortestTaskPath = tasks;
+	    		}
+	    }
 
-	List<City> getDeliveries(CSPSolution A, CSPTask task) {
+		return shortestTaskPath;
+	}
+
+	List<City> getDeliveryCities(CSPSolution A, CSPTask task) {
 		List<City> deliveries = new ArrayList<City>();
 		int taskTime = A.getTime(task);
 		Vehicle v = A.getVehicle(task);
@@ -166,6 +228,19 @@ public class CSP {
 		for (int time = 1; time < taskTime; time++) {
 			if (current.timeInTrunk - (taskTime - time) == 1) {
 				deliveries.add(current.task.deliveryCity);
+			}
+		}
+		return deliveries;
+	}
+	
+	List<Task> getDeliveryTasks(CSPSolution A, CSPTask task) {
+		List<Task> deliveries = new ArrayList<Task>();
+		int taskTime = A.getTime(task);
+		Vehicle v = A.getVehicle(task);
+		CSPTask current = A.getNextTask(v);
+		for (int time = 1; time < taskTime; time++) {
+			if (current.timeInTrunk - (taskTime - time) == 1) {
+				deliveries.add(current.task);
 			}
 		}
 		return deliveries;
