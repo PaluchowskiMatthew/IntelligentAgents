@@ -153,15 +153,16 @@ public class CSP {
 				minCostSol = N.get(i);
 			}
 		}
+		
 		return minCostSol;
 	}
 
 	double calculateTotalCost(CSPSolution A) {
 		double totalCost = 0;
 		for (Vehicle vehicle : A.getInvolvedVehicles()) {
-			City homeCity = vehicle.homeCity();
 			Task nextTask = A.getNextTask(vehicle);
 			if(nextTask != null) {
+				City homeCity = vehicle.homeCity();
 				City nextCity = A.getNextTask(vehicle).pickupCity;
 				totalCost += homeCity.distanceTo(nextCity) * vehicle.costPerKm();
 			}
@@ -177,12 +178,11 @@ public class CSP {
 		Task tj = A.getNextTask(ti);
 		City start = ti.pickupCity;
 		
-		if((tj == null) || (deliveryCities.size() < 1)) {
-			return 0;
-		}
 		
-		City end = tj.pickupCity;
-
+		if(deliveryCities.isEmpty()) {
+			City end = tj.pickupCity;
+			return start.distanceTo(end);
+		} 
 		Collection<List<City>> deliveryPermutations = Collections2.permutations(deliveryCities);
 
 		double shortestDelivery = Double.MAX_VALUE;
@@ -193,8 +193,13 @@ public class CSP {
 				City city2 = deliveries.get(i + 1);
 				distance += city1.distanceTo(city2);
 			}
-			distance += deliveries.get(deliveries.size() - 1).distanceTo(end);
-
+			
+			if((tj != null)) {
+				City end = tj.pickupCity;
+				distance += deliveries.get(deliveries.size() - 1).distanceTo(end);
+			}
+			
+			
 			if (distance < shortestDelivery) {
 				shortestDelivery = distance;
 			}
@@ -241,8 +246,9 @@ public class CSP {
 		int taskTime = A.getTime(task);
 		Vehicle v = A.getVehicle(task);
 		Task current = A.getNextTask(v);
-		for (int time = 1; time < taskTime; time++) {
-			if (A.getTimeInTrunk(current) - (taskTime - time) == 1) {
+		for (int time = 1; time < taskTime+1; time++) {
+			int tit = A.getTimeInTrunk(current);
+			if (tit - (taskTime - time) == 1) {
 				deliveries.add(current.deliveryCity);
 				current = A.getNextTask(current);
 			}
