@@ -106,7 +106,7 @@ public class CSP {
 
 		int currentVehicleIndex = 0;
 		Vehicle currentVehicle = vehicles.get(currentVehicleIndex);
-		int timePoint = 0;
+		int timePoint = 1;
 		Task previousVehicleTask = null;
 		for (Task task : deliveryTasks) {
 			int vehicleWeight = weight(initialSolution, currentVehicle, timePoint);
@@ -160,8 +160,11 @@ public class CSP {
 		double totalCost = 0;
 		for (Vehicle vehicle : A.getInvolvedVehicles()) {
 			City homeCity = vehicle.homeCity();
-			City nextCity = A.getNextTask(vehicle).pickupCity;
-			totalCost += homeCity.distanceTo(nextCity) * vehicle.costPerKm();
+			Task nextTask = A.getNextTask(vehicle);
+			if(nextTask != null) {
+				City nextCity = A.getNextTask(vehicle).pickupCity;
+				totalCost += homeCity.distanceTo(nextCity) * vehicle.costPerKm();
+			}
 		}
 		for (Task task : A.getAllTasks()) {
 			totalCost += distanceNextStep(A, task) * A.getVehicle(task).costPerKm();
@@ -396,7 +399,7 @@ public class CSP {
 		int weight = 0;
 		Task current = A.getNextTask(v);
 		for (int i = 1; i < timePoint + 1; i++) {
-			if (A.getTimeInTrunk(current) > timePoint - i) {
+			if ((current != null) && (A.getTimeInTrunk(current) > timePoint - i) ) {
 				weight += current.weight;
 				current = A.getNextTask(current);
 			}
