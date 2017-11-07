@@ -33,49 +33,52 @@ public class CSP {
 
 	public List<Plan> createCentralizedPlan() {
 		List<Plan> plans = new ArrayList<Plan>();
-		
+
 		CSPSolution bestSolution = calculateCSP();
-		
+
 		List<Vehicle> involvedVehicles = bestSolution.getInvolvedVehicles();
-		for(Vehicle vehicle: vehicles) {
-			if(!involvedVehicles.contains(vehicle)) {
+		for (Vehicle vehicle : vehicles) {
+			List<Task> tasksCarriedByVehicle = new ArrayList<Task>();
+			if (!involvedVehicles.contains(vehicle)) {
 				plans.add(Plan.EMPTY);
-			}
-			else {
+			} else {
 				City current = vehicle.getCurrentCity();
 				Plan plan = new Plan(current);
 				CSPTask firstTask = bestSolution.getNextTask(vehicle);
 				Task task = firstTask.task;
-				
+
 				City startingPoint = current;
 				for (City city : startingPoint.pathTo(task.pickupCity)) {
-	                plan.appendMove(city);
-	                current = city;
-	            }
+					plan.appendMove(city);
+					current = city;
+				}
 				plan.appendPickup(firstTask.task);
-				
+				tasksCarriedByVehicle.add(firstTask.task);
+
 				CSPTask currentTask = firstTask;
 
-				while(currentTask != null) {
-					
-					List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask);
-					for(Task toDeliver: shortestDeliveries) {
+				while (currentTask != null) {
+
+					List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask, tasksCarriedByVehicle);
+					for (Task toDeliver : shortestDeliveries) {
 						startingPoint = current;
 						for (City city : startingPoint.pathTo(toDeliver.deliveryCity)) {
-			                plan.appendMove(city);
-			                current = city;
-			            }
-						plan.appendDelivery(task);
+							plan.appendMove(city);
+							current = city;
+						}
+						plan.appendDelivery(toDeliver);
+						tasksCarriedByVehicle.remove(toDeliver);
 					}
-					
+
 					CSPTask nextTask = bestSolution.getNextTask(currentTask);
-					if(nextTask != null) {
+					if (nextTask != null) {
 						startingPoint = current;
 						for (City city : startingPoint.pathTo(nextTask.task.pickupCity)) {
-			                plan.appendMove(city);
-			                current = city;
-			            }
+							plan.appendMove(city);
+							current = city;
+						}
 						plan.appendPickup(nextTask.task);
+						tasksCarriedByVehicle.add(nextTask.task);
 					}
 					currentTask = nextTask;
 				}
@@ -84,16 +87,16 @@ public class CSP {
 		}
 		return plans;
 	}
-	
+
 	public CSPSolution calculateCSP() {
 		CSPSolution A = selectInitialSolution();
-//		int iteration = 1;
-//		do {
-//			CSPSolution Aold = new CSPSolution(A);
-//			List<CSPSolution> N = chooseNeighbours(Aold);
-//			A = localChoice(N);
-//			iteration += 1;
-//		} while (iteration < iterations);
+		// int iteration = 1;
+		// do {
+		// CSPSolution Aold = new CSPSolution(A);
+		// List<CSPSolution> N = chooseNeighbours(Aold);
+		// A = localChoice(N);
+		// iteration += 1;
+		// } while (iteration < iterations);
 		System.out.println("debug");
 		return A;
 	}
@@ -134,7 +137,7 @@ public class CSP {
 			previousVehicleTask = cspTask;
 
 			timePoint += 1;
-//			timeInTrunk += 1;
+			// timeInTrunk += 1;
 		}
 		return initialSolution;
 	}
@@ -170,60 +173,60 @@ public class CSP {
 	}
 
 	double distanceNextStep(CSPSolution A, CSPTask ti) {
-		List<City> deliveryCities= getDeliveryCities(A, ti);
+		List<City> deliveryCities = getDeliveryCities(A, ti);
 		CSPTask tj = A.getNextTask(ti);
 		City start = ti.task.pickupCity;
 		City end = tj.task.pickupCity;
-		
-	    Collection<List<City>> deliveryPermutations = Collections2.permutations(deliveryCities);
-	    
-	    double shortestDelivery = Double.MAX_VALUE;
-	    for (List<City> deliveries : deliveryPermutations) {
-	        double distance = start.distanceTo(deliveries.get(0));
-	    		for(int i=0; i < deliveries.size()-1; i++) {
-	    			City city1 = deliveries.get(i);
-	    			City city2 = deliveries.get(i+1);
-	    			distance += city1.distanceTo(city2);
-	    		}
-	    		distance += deliveries.get(deliveries.size()-1).distanceTo(end);
-	    		
-	    		if(distance < shortestDelivery) {
-	    			shortestDelivery = distance;
-	    		}
-	    }
+
+		Collection<List<City>> deliveryPermutations = Collections2.permutations(deliveryCities);
+
+		double shortestDelivery = Double.MAX_VALUE;
+		for (List<City> deliveries : deliveryPermutations) {
+			double distance = start.distanceTo(deliveries.get(0));
+			for (int i = 0; i < deliveries.size() - 1; i++) {
+				City city1 = deliveries.get(i);
+				City city2 = deliveries.get(i + 1);
+				distance += city1.distanceTo(city2);
+			}
+			distance += deliveries.get(deliveries.size() - 1).distanceTo(end);
+
+			if (distance < shortestDelivery) {
+				shortestDelivery = distance;
+			}
+		}
 
 		return shortestDelivery;
 	}
-	
-	List<Task> shortestDeliveryPath(CSPSolution A, CSPTask ti) {
-		List<Task> deliveryTasks= getDeliveryTasks(A, ti);
-		
-		if(deliveryTasks.size() < 2) {
+
+	List<Task> shortestDeliveryPath(CSPSolution A, CSPTask ti, List<Task> tasksCarried) {
+		List<Task> deliveryTasks = getDeliveryTasks(A, ti, tasksCarried);
+
+		if (deliveryTasks.size() < 2) {
 			return deliveryTasks;
 		}
-		
+
 		CSPTask tj = A.getNextTask(ti);
 		City start = ti.task.pickupCity;
 		City end = tj.task.pickupCity;
-		
-	    Collection<List<Task>> deliveryPermutations = Collections2.permutations(deliveryTasks);
-	    
-	    double shortestDelivery = Double.MAX_VALUE;
-	    List<Task> shortestTaskPath = null;
-	    for (List<Task> tasks : deliveryPermutations) {
-	        double distance = start.distanceTo(tasks.get(0).deliveryCity);
-	    		for(int i=0; i < tasks.size()-1; i++) {
-	    			Task task1 = tasks.get(i);
-	    			Task task2 = tasks.get(i+1);
-	    			distance += task1.deliveryCity.distanceTo(task2.deliveryCity);
-	    		}
-	    		distance += tasks.get(tasks.size()-1).deliveryCity.distanceTo(end);
-	    		
-	    		if(distance < shortestDelivery) {
-	    			shortestDelivery = distance;
-	    			shortestTaskPath = tasks;
-	    		}
-	    }
+
+		Collection<List<Task>> deliveryPermutations = Collections2.permutations(deliveryTasks);
+
+		double shortestDelivery = Double.MAX_VALUE;
+		List<Task> shortestTaskPath = null;
+		for (List<Task> tasks : deliveryPermutations) {
+			double distance = start.distanceTo(tasks.get(0).deliveryCity);
+			for (int i = 0; i < tasks.size() - 1; i++) {
+				Task task1 = tasks.get(i);
+				Task task2 = tasks.get(i + 1);
+				distance += task1.deliveryCity.distanceTo(task2.deliveryCity);
+			}
+			distance += tasks.get(tasks.size() - 1).deliveryCity.distanceTo(end);
+
+			if (distance < shortestDelivery) {
+				shortestDelivery = distance;
+				shortestTaskPath = tasks;
+			}
+		}
 
 		return shortestTaskPath;
 	}
@@ -236,21 +239,25 @@ public class CSP {
 		for (int time = 1; time < taskTime; time++) {
 			if (current.timeInTrunk - (taskTime - time) == 1) {
 				deliveries.add(current.task.deliveryCity);
+				current = A.getNextTask(current);
 			}
 		}
 		return deliveries;
 	}
-	
-	List<Task> getDeliveryTasks(CSPSolution A, CSPTask task) {
+
+	List<Task> getDeliveryTasks(CSPSolution A, CSPTask task, List<Task> tasksCarried) {
 		List<Task> deliveries = new ArrayList<Task>();
+
+//		Vehicle v = A.getVehicle(task);
 		int taskTime = A.getTime(task);
-		Vehicle v = A.getVehicle(task);
-		CSPTask current = A.getNextTask(v);
-		for (int time = 0; time < taskTime+1; time++) {
-			if (current.timeInTrunk - (taskTime - time) == 1) {
+		CSPTask current = task;//A.getNextTask(v);
+		for (int time = 0; time < taskTime + 1; time++) {
+			if ((current.timeInTrunk - (taskTime - time) == 1) && tasksCarried.contains(current.task)) {
 				deliveries.add(current.task);
+//				current = A.getNextTask(current);
 			}
 		}
+
 		return deliveries;
 	}
 
