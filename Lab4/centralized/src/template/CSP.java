@@ -38,49 +38,33 @@ public class CSP {
 
 		List<Vehicle> involvedVehicles = bestSolution.getInvolvedVehicles();
 		for (Vehicle vehicle : vehicles) {
-			List<Task> tasksCarriedByVehicle = new ArrayList<Task>();
 			if (!involvedVehicles.contains(vehicle)) {
 				plans.add(Plan.EMPTY);
 			} else {
 				City current = vehicle.getCurrentCity();
 				Plan plan = new Plan(current);
-				Task firstTask = bestSolution.getNextTask(vehicle);
-				Task task = firstTask;
-
-				City startingPoint = current;
-				for (City city : startingPoint.pathTo(task.pickupCity)) {
-					plan.appendMove(city);
-					current = city;
-				}
-				plan.appendPickup(firstTask);
-				tasksCarriedByVehicle.add(firstTask);
-
-				Task currentTask = firstTask;
+				Task currentTask = bestSolution.getNextTask(vehicle);
 
 				while (currentTask != null) {
-
-					List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask, tasksCarriedByVehicle);
+					
+					//PICKUP
+					for (City city : current.pathTo(currentTask.pickupCity)) {
+						plan.appendMove(city);
+					}
+					current = currentTask.pickupCity;
+					plan.appendPickup(currentTask);	
+					
+					//DELIVER
+					List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask);
 					for (Task toDeliver : shortestDeliveries) {
-						startingPoint = current;
-						for (City city : startingPoint.pathTo(toDeliver.deliveryCity)) {
+						for (City city : current.pathTo(toDeliver.deliveryCity)) {
 							plan.appendMove(city);
-							current = city;
 						}
+						current = toDeliver.deliveryCity;
 						plan.appendDelivery(toDeliver);
-						tasksCarriedByVehicle.remove(toDeliver);
 					}
-
-					Task nextTask = bestSolution.getNextTask(currentTask);
-					if (nextTask != null) {
-						startingPoint = current;
-						for (City city : startingPoint.pathTo(nextTask.pickupCity)) {
-							plan.appendMove(city);
-							current = city;
-						}
-						plan.appendPickup(nextTask);
-						tasksCarriedByVehicle.add(nextTask);
-					}
-					currentTask = nextTask;
+					//NEXTSTEP
+					currentTask = bestSolution.getNextTask(currentTask);
 				}
 				plans.add(plan);
 			}
@@ -94,7 +78,10 @@ public class CSP {
 		 do {
 		 CSPSolution Aold = new CSPSolution(A);
 		 List<CSPSolution> N = chooseNeighbours(Aold);
-		 A = localChoice(N);
+		 Random random = new Random();
+		 if(probability > random.nextDouble() ) {
+			 A = localChoice(N);
+		 } 
 		 iteration += 1;
 		 } while (iteration < iterations);
 		System.out.println("debug");
@@ -134,7 +121,7 @@ public class CSP {
 			previousVehicleTask = task;
 
 			timePoint += 1;
-			// timeInTrunk += 1;
+			
 		}
 		return initialSolution;
 	}
@@ -163,7 +150,7 @@ public class CSP {
 			Task nextTask = A.getNextTask(vehicle);
 			if(nextTask != null) {
 				City homeCity = vehicle.homeCity();
-				City nextCity = A.getNextTask(vehicle).pickupCity;
+				City nextCity = nextTask.pickupCity;
 				totalCost += homeCity.distanceTo(nextCity) * vehicle.costPerKm();
 			}
 		}
@@ -208,8 +195,8 @@ public class CSP {
 		return shortestDelivery;
 	}
 
-	List<Task> shortestDeliveryPath(CSPSolution A, Task ti, List<Task> tasksCarried) {
-		List<Task> deliveryTasks = getDeliveryTasks(A, ti, tasksCarried);
+	List<Task> shortestDeliveryPath(CSPSolution A, Task ti) {
+		List<Task> deliveryTasks = getDeliveryTasks(A, ti);
 		Task tj = A.getNextTask(ti);
 		City start = ti.pickupCity;
 		
@@ -250,24 +237,24 @@ public class CSP {
 		for (int time = 1; time < taskTime+1; time++) {
 			int tit = A.getTimeInTrunk(current);
 			if (tit - (taskTime - time) == 1) {
-				deliveries.add(current.deliveryCity);
-				current = A.getNextTask(current);
+				deliveries.add(current.deliveryCity);	
 			}
+			current = A.getNextTask(current);
 		}
 		return deliveries;
 	}
 
-	List<Task> getDeliveryTasks(CSPSolution A, Task task, List<Task> tasksCarried) {
+	List<Task> getDeliveryTasks(CSPSolution A, Task task) {
 		List<Task> deliveries = new ArrayList<Task>();
 		int taskTime = A.getTime(task);
 		Vehicle v = A.getVehicle(task);
 		Task current = A.getNextTask(v);
 		for (int time = 1; time < taskTime + 1; time++) {
 			int tit = A.getTimeInTrunk(current);
-			if ((tit - (taskTime - time) == 1) ) {//&& tasksCarried.contains(current)) {
+			if ((tit - (taskTime - time) == 1) ) {
 				deliveries.add(current);
-				current = A.getNextTask(current);
 			}
+			current = A.getNextTask(current);
 		}
 
 		return deliveries;
@@ -288,8 +275,7 @@ public class CSP {
 			if (vi == vj) {
 				continue;
 			}
-//			Task t = Aold.getNextTask(vi);
-			// if (load(t) <= capacity(vj)) I dont think its needed
+
 			CSPSolution A = changeVehicle(Aold, vi, vj);
 			if (A != null) {
 				N.add(A);
@@ -389,8 +375,8 @@ public class CSP {
 		}
 		updateTime(A1, vi);
 
-		for (int tit1 = 1; tit1 < (nbTasks - tIdx1 + 1); tit1++) {
-			for (int tit2 = 1; tit2 < (nbTasks - tIdx2 + 1); tit2++) {
+		for (int tit2 = 1; tit2 < (nbTasks - tIdx1 + 1); tit2++) {
+			for (int tit1 = 1; tit1 < (nbTasks - tIdx2 + 1); tit1++) {
 				CSPSolution A2 = new CSPSolution(A1);
 				A2.setTimeInTrunk(t1, tit1);
 				A2.setTimeInTrunk(t2, tit2);
