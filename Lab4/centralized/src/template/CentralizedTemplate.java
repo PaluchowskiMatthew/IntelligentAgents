@@ -40,7 +40,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
         // this code is used to get the timeouts
         LogistSettings ls = null;
         try {
-            ls = Parsers.parseSettings("config\\settings_default.xml");
+            ls = Parsers.parseSettings("config/settings_default.xml");
         }
         catch (Exception exc) {
             System.out.println("There was a problem loading the configuration file.");
@@ -54,6 +54,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
         this.topology = topology;
         this.distribution = distribution;
         this.agent = agent;
+
     }
 
     @Override
@@ -61,19 +62,27 @@ public class CentralizedTemplate implements CentralizedBehavior {
         long time_start = System.currentTimeMillis();
         
 //		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-        Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
-
-        List<Plan> plans = new ArrayList<Plan>();
-        plans.add(planVehicle1);
-        while (plans.size() < vehicles.size()) {
-            plans.add(Plan.EMPTY);
-        }
+//        Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
+//
+//        List<Plan> plans = new ArrayList<Plan>();
+//        plans.add(planVehicle1);
+//        while (plans.size() < vehicles.size()) {
+//            plans.add(Plan.EMPTY);
+//        }
+        List<Plan> plans = centralizedPlan(vehicles, tasks);
         
         long time_end = System.currentTimeMillis();
         long duration = time_end - time_start;
         System.out.println("The plan was generated in "+duration+" milliseconds.");
         
         return plans;
+    }
+    
+    private List<Plan> centralizedPlan(List<Vehicle> vehicles, TaskSet tasks) {
+    	
+    		CSP csp = new CSP(vehicles, tasks, 0.5, 10000);
+    		List <Plan> plans = csp.createCentralizedPlan();
+    		return plans;
     }
 
     private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
