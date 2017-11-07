@@ -316,9 +316,9 @@ public class CSP {
 
 	CSPSolution changeVehicle(CSPSolution A, Vehicle v1, Vehicle v2) {
 		CSPSolution A1 = new CSPSolution(A);
-		Task t = A.getNextTask(v1);
-		int v1TimeInTrunk = A.getTimeInTrunk(t); // Added
-		Task tForV1 = A.getNextTask(t);
+		Task t = A1.getNextTask(v1);
+		int v1TimeInTrunk = A1.getTimeInTrunk(t); // Added
+		Task tForV1 = A1.getNextTask(t);
 		A1.setTimeInTrunk(tForV1, v1TimeInTrunk); // Added
 
 		A1.setNextTask(v1, tForV1);
@@ -338,7 +338,7 @@ public class CSP {
 	List<CSPSolution> changeTaskOrder(CSPSolution A, Vehicle vi, int tIdx1, int tIdx2) {
 		List<CSPSolution> N = new ArrayList<CSPSolution>();
 		int nbTasks = amountOfTasks(A, vi);
-		CSPSolution A1 = A;
+		CSPSolution A1 = new CSPSolution(A);
 		Task t1 = A1.getNextTask(vi);
 		int count = 1;
 		Task tPre1 = null;
