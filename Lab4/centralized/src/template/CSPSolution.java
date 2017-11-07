@@ -24,7 +24,7 @@ public class CSPSolution {
 			}
 			for(Task task: deliveryTasks) {
 					TasksForTask.put(task, null);
-					time.put(task, 0);
+					time.put(task, 1);
 					timeInTrunk.put(task, 1);
 					vehicle.put(task, null);
 			}
@@ -43,10 +43,10 @@ public class CSPSolution {
 		public List<Vehicle> getInvolvedVehicles(){
 			List<Vehicle> vehiclesInvolved = new ArrayList<Vehicle>();
 			
-			for (Task key: vehicle.keySet()) {
-				Vehicle v = vehicle.get(key);
-				if(v != null && !vehiclesInvolved.contains(v)) {
-					vehiclesInvolved.add(v);
+			for (Vehicle keyVehicle: TasksForVehicleAction.keySet()) {
+				Task t = TasksForVehicleAction.get(keyVehicle);
+				if(t != null && !vehiclesInvolved.contains(keyVehicle)) {
+					vehiclesInvolved.add(keyVehicle);
 				}
 			}
 			return vehiclesInvolved;
@@ -98,11 +98,11 @@ public class CSPSolution {
 
 		
 		public int	getTimeInTrunk(Task Task) {
-			return time.get(Task);
+			return timeInTrunk.get(Task);
 		}
 		
 		public void setTimeInTrunk(Task key, int t) {
-			time.put(key, t);
+			timeInTrunk.put(key, t);
 		}
 		
 		
