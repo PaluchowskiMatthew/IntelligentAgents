@@ -32,12 +32,11 @@ public class CSPSolution {
 		
 		// Copy constructor
 		public CSPSolution(CSPSolution differentSolution) {
-			this.TasksForVehicleAction = differentSolution.TasksForVehicleAction;
-			this.TasksForTask = differentSolution.TasksForTask;
-			this.time = differentSolution.time;
-			this.vehicle = differentSolution.vehicle;
-			this.timeInTrunk = differentSolution.timeInTrunk;
-
+			this.TasksForVehicleAction = new HashMap<Vehicle, Task>(differentSolution.TasksForVehicleAction);
+			this.TasksForTask = new HashMap<Task, Task>(differentSolution.TasksForTask);
+			this.time = new HashMap<Task, Integer>(differentSolution.time);
+			this.vehicle = new HashMap<Task, Vehicle>(differentSolution.vehicle);
+			this.timeInTrunk = new HashMap<Task, Integer>(differentSolution.timeInTrunk);
 		}
 		
 		public List<Vehicle> getInvolvedVehicles(){
