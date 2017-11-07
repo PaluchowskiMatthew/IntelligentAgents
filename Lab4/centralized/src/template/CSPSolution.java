@@ -10,40 +10,40 @@ import logist.task.TaskSet;
 
 public class CSPSolution {
 	// Do we actually need this split into tasks for vehicle and for action?
-		HashMap<Vehicle, CSPTask> cspTasksForVehicleAction = new HashMap<Vehicle, CSPTask>();
-		HashMap<CSPTask, CSPTask> cspTasksForCSPTask = new HashMap<CSPTask, CSPTask>();
-		HashMap<CSPTask, Integer> time = new HashMap<CSPTask, Integer>();
-		HashMap<CSPTask, Vehicle> vehicle = new HashMap<CSPTask, Vehicle>();
+		HashMap<Vehicle, Task> TasksForVehicleAction = new HashMap<Vehicle, Task>();
+		HashMap<Task, Task> TasksForTask = new HashMap<Task, Task>();
+		HashMap<Task, Integer> time = new HashMap<Task, Integer>();
+		HashMap<Task, Integer> timeInTrunk = new HashMap<Task, Integer>();
+		HashMap<Task, Vehicle> vehicle = new HashMap<Task, Vehicle>();
 
 		
 		public CSPSolution(List<Vehicle> vehicles, TaskSet deliveryTasks) {
 			// initialize HashMaps
 			for(Vehicle v: vehicles) {
-				cspTasksForVehicleAction.put(v, null);
+				TasksForVehicleAction.put(v, null);
 			}
 			for(Task task: deliveryTasks) {
-				for(int i=0; i< deliveryTasks.size()+1; i++) {
-					CSPTask cspTask = new CSPTask(task, i);
-					cspTasksForCSPTask.put(cspTask, null);
-					time.put(cspTask, 0);
-					vehicle.put(cspTask, null);
-				}
+					TasksForTask.put(task, null);
+					time.put(task, 0);
+					timeInTrunk.put(task, 1);
+					vehicle.put(task, null);
 			}
 		}
 		
 		// Copy constructor
 		public CSPSolution(CSPSolution differentSolution) {
-			this.cspTasksForVehicleAction = differentSolution.cspTasksForVehicleAction;
-			this.cspTasksForCSPTask = differentSolution.cspTasksForCSPTask;
+			this.TasksForVehicleAction = differentSolution.TasksForVehicleAction;
+			this.TasksForTask = differentSolution.TasksForTask;
 			this.time = differentSolution.time;
 			this.vehicle = differentSolution.vehicle;
+			this.timeInTrunk = differentSolution.timeInTrunk;
 
 		}
 		
 		public List<Vehicle> getInvolvedVehicles(){
 			List<Vehicle> vehiclesInvolved = new ArrayList<Vehicle>();
 			
-			for (CSPTask key: vehicle.keySet()) {
+			for (Task key: vehicle.keySet()) {
 				Vehicle v = vehicle.get(key);
 				if(v != null && !vehiclesInvolved.contains(v)) {
 					vehiclesInvolved.add(v);
@@ -52,48 +52,60 @@ public class CSPSolution {
 			return vehiclesInvolved;
 		}
 		
-		public List<CSPTask> getAllCSPTasks(){
-			List<CSPTask> cspTasks = new ArrayList<CSPTask>();
+		public List<Task> getAllTasks(){
+			List<Task> Tasks = new ArrayList<Task>();
 			
-			for (CSPTask key: vehicle.keySet()) {
+			for (Task key: vehicle.keySet()) {
 				if(key != null) {
-					cspTasks.add(key);
+					Tasks.add(key);
 				}
 			}
 			
-			return cspTasks;
+			return Tasks;
 		}
 		
-		public CSPTask getNextTask(Vehicle v) {
-			return cspTasksForVehicleAction.get(v);
+		public Task getNextTask(Vehicle v) {
+			return TasksForVehicleAction.get(v);
 		}
 		
-		public void setNextTask(Vehicle v, CSPTask cspTask) {
-			cspTasksForVehicleAction.put(v, cspTask);
+		public void setNextTask(Vehicle v, Task Task) {
+			TasksForVehicleAction.put(v, Task);
 		}
 		
-		public CSPTask	getNextTask(CSPTask cspTask) {
-			return cspTasksForCSPTask.get(cspTask);
+		public Task	getNextTask(Task Task) {
+			return TasksForTask.get(Task);
 		}
 		
-		public void setNextTask(CSPTask key, CSPTask cspTask) {
-			cspTasksForCSPTask.put(key, cspTask);
+		public void setNextTask(Task key, Task Task) {
+			TasksForTask.put(key, Task);
 		}
 		
-		public int	getTime(CSPTask cspTask) {
-			return time.get(cspTask);
+		public int	getTime(Task Task) {
+			return time.get(Task);
 		}
 		
-		public void setTime(CSPTask key, int t) {
+		public void setTime(Task key, int t) {
 			time.put(key, t);
 		}
 		
-		public Vehicle	getVehicle(CSPTask cspTask) {
-			return vehicle.get(cspTask);
+		public Vehicle	getVehicle(Task Task) {
+			return vehicle.get(Task);
 		}
 		
-		public void setVehicle(CSPTask key, Vehicle v) {
+		public void setVehicle(Task key, Vehicle v) {
 			vehicle.put(key, v);
 		}
+
+		
+		public int	getTimeInTrunk(Task Task) {
+			return time.get(Task);
+		}
+		
+		public void setTimeInTrunk(Task key, int t) {
+			time.put(key, t);
+		}
+		
+		
+		
 		
 }
