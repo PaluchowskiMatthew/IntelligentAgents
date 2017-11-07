@@ -173,6 +173,11 @@ public class CSP {
 		List<City> deliveryCities = getDeliveryCities(A, ti);
 		Task tj = A.getNextTask(ti);
 		City start = ti.pickupCity;
+		
+		if((tj == null) || (deliveryCities.size() < 1)) {
+			return 0;
+		}
+		
 		City end = tj.pickupCity;
 
 		Collection<List<City>> deliveryPermutations = Collections2.permutations(deliveryCities);
