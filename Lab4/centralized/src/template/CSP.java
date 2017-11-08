@@ -31,11 +31,26 @@ public class CSP {
 		this.iterations = iterations;
 	}
 
+	
+	public CSPSolution calculateCSP() {
+		CSPSolution A = selectInitialSolution();
+		 int iteration = 1;
+		 do {
+			 CSPSolution Aold = new CSPSolution(A);
+			 List<CSPSolution> N = chooseNeighbours(Aold);
+			 A = localChoice(N,A);
+			 iteration += 1;
+		 } while (iteration < iterations);
+		return A;
+	}
+
+	
+	
 	public List<Plan> createCentralizedPlan() {
 		List<Plan> plans = new ArrayList<Plan>();
-
 		CSPSolution bestSolution = calculateCSP();
-
+		
+		//Create Plan for every vehicle with tasks assigned
 		List<Vehicle> involvedVehicles = bestSolution.getInvolvedVehicles();
 		for (Vehicle vehicle : vehicles) {
 			if (!involvedVehicles.contains(vehicle)) {
@@ -72,22 +87,7 @@ public class CSP {
 		return plans;
 	}
 
-	public CSPSolution calculateCSP() {
-		CSPSolution A = selectInitialSolution();
-		 int iteration = 1;
-		 do {
-		 CSPSolution Aold = new CSPSolution(A);
-		 List<CSPSolution> N = chooseNeighbours(Aold);
-		 Random random = new Random();
-		 if(probability > random.nextDouble() ) {
-			 A = localChoice(N);
-		 } 
-		 iteration += 1;
-		 } while (iteration < iterations);
-		System.out.println("debug");
-		return A;
-	}
-
+	
 	CSPSolution selectInitialSolution() {
 		CSPSolution initialSolution = new CSPSolution(vehicles, deliveryTasks);
 
@@ -126,22 +126,31 @@ public class CSP {
 		return initialSolution;
 	}
 
-	CSPSolution localChoice(List<CSPSolution> N) {
+	CSPSolution localChoice(List<CSPSolution> N, CSPSolution Aold) {
 		if (N.isEmpty()) {
 			return null;
 		}
 		int length = N.size();
-		double minCost = calculateTotalCost(N.get(0));
-		CSPSolution minCostSol = N.get(0);
-		for (int i = 1; i < length; i++) {
+		double minCost = calculateTotalCost(Aold);
+		List<CSPSolution> minCostSol = new ArrayList<CSPSolution>();
+		minCostSol.add(N.get(0));
+		for (int i = 0; i < length; i++) {
 			double currentCost = calculateTotalCost(N.get(i));
 			if (currentCost < minCost) {
 				minCost = currentCost;
-				minCostSol = N.get(i);
+				minCostSol.clear();
+				minCostSol.add(N.get(i));
+			} else if(currentCost == minCost) {
+				minCostSol.add(N.get(i));
 			}
 		}
+		CSPSolution localChoice = new CSPSolution(Aold);
+		Random random = new Random();
+		 if(probability > random.nextDouble() ) {
+			 localChoice = minCostSol.get(random.nextInt(minCostSol.size()));
+		 } 
 		
-		return minCostSol;
+		return localChoice;
 	}
 
 	double calculateTotalCost(CSPSolution A) {
@@ -155,50 +164,40 @@ public class CSP {
 			}
 		}
 		for (Task task : A.getAllTasks()) {
-			totalCost += distanceNextStep(A, task) * A.getVehicle(task).costPerKm();
+			totalCost += distanceSequence(A,shortestDeliveryPath(A, task), task) * A.getVehicle(task).costPerKm();
 		}
 		return totalCost;
 	}
 
-	double distanceNextStep(CSPSolution A, Task ti) {
-		List<City> deliveryCities = getDeliveryCities(A, ti);
+	
+	double distanceSequence(CSPSolution A,List<Task> deliveries, Task ti) {
 		Task tj = A.getNextTask(ti);
 		City start = ti.pickupCity;
 		
-		
-		if(deliveryCities.isEmpty()) {
+		if(deliveries.isEmpty()) {
+			if(tj == null) {
+				System.out.println("Debug");
+			}
 			City end = tj.pickupCity;
 			return start.distanceTo(end);
 		} 
-		Collection<List<City>> deliveryPermutations = Collections2.permutations(deliveryCities);
-
-		double shortestDelivery = Double.MAX_VALUE;
-		for (List<City> deliveries : deliveryPermutations) {
-			double distance = start.distanceTo(deliveries.get(0));
-			for (int i = 0; i < deliveries.size() - 1; i++) {
-				City city1 = deliveries.get(i);
-				City city2 = deliveries.get(i + 1);
-				distance += city1.distanceTo(city2);
-			}
-			
-			if((tj != null)) {
-				City end = tj.pickupCity;
-				distance += deliveries.get(deliveries.size() - 1).distanceTo(end);
-			}
-			
-			
-			if (distance < shortestDelivery) {
-				shortestDelivery = distance;
-			}
+		
+		double distance = start.distanceTo(deliveries.get(0).deliveryCity);
+		
+		for (int i = 0; i < deliveries.size() - 1; i++) {
+			City city1 = deliveries.get(i).deliveryCity;
+			City city2 = deliveries.get(i + 1).deliveryCity;
+			distance += city1.distanceTo(city2);
 		}
-
-		return shortestDelivery;
+		if((tj != null)) {
+			City end = tj.pickupCity;
+			distance += deliveries.get(deliveries.size() - 1).deliveryCity.distanceTo(end);
+		}
+		return distance;
 	}
-
+	
 	List<Task> shortestDeliveryPath(CSPSolution A, Task ti) {
 		List<Task> deliveryTasks = getDeliveryTasks(A, ti);
-		Task tj = A.getNextTask(ti);
-		City start = ti.pickupCity;
 		
 		if(deliveryTasks.isEmpty()) {
 			return deliveryTasks;
@@ -208,41 +207,18 @@ public class CSP {
 
 		double shortestDelivery = Double.MAX_VALUE;
 		List<Task> shortestTaskPath = null;
+		
 		for (List<Task> tasks : deliveryPermutations) {
-			double distance = start.distanceTo(tasks.get(0).deliveryCity);
-			for (int i = 0; i < tasks.size() - 1; i++) {
-				Task task1 = tasks.get(i);
-				Task task2 = tasks.get(i + 1);
-				distance += task1.deliveryCity.distanceTo(task2.deliveryCity);
-			}
-			if((tj != null)) {
-				City end = tj.pickupCity;
-				distance += tasks.get(tasks.size() - 1).deliveryCity.distanceTo(end);
-			}
+			double distance = distanceSequence(A, tasks, ti);
 
 			if (distance < shortestDelivery) {
 				shortestDelivery = distance;
 				shortestTaskPath = tasks;
 			}
 		}
-
 		return shortestTaskPath;
 	}
 
-	List<City> getDeliveryCities(CSPSolution A, Task task) {
-		List<City> deliveries = new ArrayList<City>();
-		int taskTime = A.getTime(task);
-		Vehicle v = A.getVehicle(task);
-		Task current = A.getNextTask(v);
-		for (int time = 1; time < taskTime+1; time++) {
-			int tit = A.getTimeInTrunk(current);
-			if (tit - (taskTime - time) == 1) {
-				deliveries.add(current.deliveryCity);	
-			}
-			current = A.getNextTask(current);
-		}
-		return deliveries;
-	}
 
 	List<Task> getDeliveryTasks(CSPSolution A, Task task) {
 		List<Task> deliveries = new ArrayList<Task>();
@@ -259,23 +235,37 @@ public class CSP {
 
 		return deliveries;
 	}
+	CSPSolution updateTrunkTimes(CSPSolution A, Task task) {
+		CSPSolution A1 = new CSPSolution(A);
+		int taskTime = A.getTime(task);
+		Vehicle v = A.getVehicle(task);
+		Task current = A.getNextTask(v);
+		for (int time = 1; time < taskTime + 1; time++) {
+			int tit = A.getTimeInTrunk(current);
+			if ((tit - (taskTime - time) >= 1) ) {
+				A1.setTimeInTrunk(current, tit - 1);
+			}
+			current = A.getNextTask(current);
+		}
+		
+		return A1;
+				
+	}
+	
 
 	List<CSPSolution> chooseNeighbours(CSPSolution Aold) {
 		List<CSPSolution> N = new ArrayList<CSPSolution>();
-		Task vehicleTask = null;
-		Vehicle vi = null;
-		do {
-			Random randomizer = new Random();
-			vi = vehicles.get(randomizer.nextInt(vehicles.size()));
-			vehicleTask = Aold.getNextTask(vi);
-		} while (vehicleTask == null);
-
+		List<Vehicle> involvedVehicles = Aold.getInvolvedVehicles();
+		
+		Random randomizer = new Random();
+		int intrandomizer = randomizer.nextInt(involvedVehicles.size());
+		Vehicle vi = involvedVehicles.get(intrandomizer);
+		
 		// Applying the changing vehicle operator
 		for (Vehicle vj : vehicles) {
 			if (vi == vj) {
 				continue;
 			}
-
 			CSPSolution A = changeVehicle(Aold, vi, vj);
 			if (A != null) {
 				N.add(A);
@@ -283,44 +273,70 @@ public class CSP {
 		}
 
 		// Applying the changing task order operator
-		// compute the number of tasks of vehicle
-		int length = 0;
-		Task t = Aold.getNextTask(vi);
-		length += 1;
-		if (t != null) {
-			do {
-				t = Aold.getNextTask(t);
-				length += 1;
-			} while (t != null);
-		}
+		int solutionCount = 0;
+		int length = amountOfTasks(Aold, vi);
 		if (length >= 2) {
-			for (int tIdx1 = 1; tIdx1 <= length - 1; tIdx1++) {
-				for (int tIdx2 = tIdx1 + 1; tIdx2 <= length; tIdx2++) {
-					List<CSPSolution> A = changeTaskOrder(Aold, vi, tIdx1, tIdx2);
-					if (!A.isEmpty()) {
-						N.addAll(A);
-					}
+			do {
+				Random r1 = new Random();
+				Random r2 = new Random();
+				int tIdx1 = r1.nextInt(length - 1) + 1;
+				int tIdx2 = r2.nextInt(length - tIdx1) + tIdx1 + 1;
+				List<CSPSolution> A = changeTaskOrder(Aold, vi, tIdx1, tIdx2);
+				if (!A.isEmpty()) {
+					N.addAll(A);
+					solutionCount += 1;
 				}
-			}
+			} while(solutionCount < 3);
 		}
-
 		return N;
 	}
 
 	CSPSolution changeVehicle(CSPSolution A, Vehicle v1, Vehicle v2) {
 		CSPSolution A1 = new CSPSolution(A);
-		Task t = A1.getNextTask(v1);
-		int v1TimeInTrunk = A1.getTimeInTrunk(t); // Added
-		Task tForV1 = A1.getNextTask(t);
-		A1.setTimeInTrunk(tForV1, v1TimeInTrunk); // Added
-
-		A1.setNextTask(v1, tForV1);
-		A1.setNextTask(t, A1.getNextTask(v2));
-		A1.setTimeInTrunk(t, 1);
-		A1.setNextTask(v2, t);
+//		Task t = A1.getNextTask(v1);
+		
+		int length = amountOfTasks(A, v1);
+		Random r1 = new Random();
+		int tIdx1 = r1.nextInt(length) + 1;
+		
+		//SELECT TASK
+		Task t1 = A1.getNextTask(v1);
+		Task tPre1 = null;
+		int count = 1;
+		while (count < tIdx1) {
+			tPre1 = t1;
+			t1 = A1.getNextTask(t1);
+			count += 1;
+		}
+		Task tPost1 = A1.getNextTask(t1);
+		
+		//UPDATE TimeInTrunk
+		A1 = updateTrunkTimes(A1,t1);
+		//EJECT TASK
+		if (tPre1 == null) {
+			A1.setNextTask(v1, tPost1);
+		} else {
+			A1.setNextTask(tPre1, tPost1);
+		}
+		//INSERT TASK
+		A1.setNextTask(t1, A1.getNextTask(v2));
+		A1.setNextTask(v2, t1);
+		
+		A1.setTimeInTrunk(t1, 1);
+		A1.setVehicle(t1, v2);
+		
+		
+		
+//		A1.setNextTask(v1, A1.getNextTask(t));
+//		A1.setNextTask(t, A1.getNextTask(v2));
+//		A1.setNextTask(v2, t);
+		
+//		A1.setTimeInTrunk(t, 1);
+//		A1.setVehicle(t, v2);
+		
 		updateTime(A1, v1);
 		updateTime(A1, v2);
-		A1.setVehicle(t, v2);
+		
 		if (checkIfPossibeSolution(A1, v1) && checkIfPossibeSolution(A1, v2)) {
 			return A1;
 		} else {
@@ -330,11 +346,12 @@ public class CSP {
 
 	List<CSPSolution> changeTaskOrder(CSPSolution A, Vehicle vi, int tIdx1, int tIdx2) {
 		List<CSPSolution> N = new ArrayList<CSPSolution>();
-		int nbTasks = amountOfTasks(A, vi);
 		CSPSolution A1 = new CSPSolution(A);
+		
+		int nbTasks = amountOfTasks(A, vi);
 		Task t1 = A1.getNextTask(vi);
-		int count = 1;
 		Task tPre1 = null;
+		int count = 1;
 		while (count < tIdx1) {
 			tPre1 = t1;
 			t1 = A1.getNextTask(t1);
@@ -344,7 +361,7 @@ public class CSP {
 		Task tPost1 = A1.getNextTask(t1);
 		Task tPre2 = t1;
 		Task t2 = A1.getNextTask(tPre2);
-		// imho Task.time should be updated here as well
+	
 		count += 1;
 		while (count < tIdx2) {
 			tPre2 = t2;
@@ -352,7 +369,7 @@ public class CSP {
 			count += 1;
 		}
 		Task tPost2 = A1.getNextTask(t2);
-		// imho Task.time should be updated here as well
+
 		if (tPost1 == t2) {
 			if (tPre1 == null) {
 				A1.setNextTask(vi, t2);
@@ -374,17 +391,21 @@ public class CSP {
 			A1.setNextTask(t1, tPost2);
 		}
 		updateTime(A1, vi);
-
-		for (int tit2 = 1; tit2 < (nbTasks - tIdx1 + 1); tit2++) {
-			for (int tit1 = 1; tit1 < (nbTasks - tIdx2 + 1); tit1++) {
-				CSPSolution A2 = new CSPSolution(A1);
-				A2.setTimeInTrunk(t1, tit1);
-				A2.setTimeInTrunk(t2, tit2);
-				if (checkIfPossibeSolution(A2, vi)) {
-					N.add(A2);
-				}
+		
+		int solutionCount = 0;
+		do {
+			Random r1 = new Random();
+			Random r2 = new Random();
+			int tit2 = r1.nextInt(nbTasks - tIdx1 + 1) + 1;
+			int tit1 = r2.nextInt(nbTasks - tIdx2 + 1) + 1;
+			CSPSolution A2 = new CSPSolution(A1);
+			A2.setTimeInTrunk(t1, tit1);
+			A2.setTimeInTrunk(t2, tit2);
+			if (checkIfPossibeSolution(A2, vi)) {
+				N.add(A2);
+				solutionCount += 1;
 			}
-		}
+		} while(solutionCount < 2);
 		return N;
 	}
 
