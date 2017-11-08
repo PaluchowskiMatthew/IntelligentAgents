@@ -142,7 +142,9 @@ public class CSP {
 		Random random = new Random();
 		 if(probability > random.nextDouble() ) {
 			 localChoice = minCostSol.get(random.nextInt(minCostSol.size()));
-		 } 
+		 } else {
+			 localChoice = N.get(random.nextInt(N.size()));
+		 }
 		
 		return localChoice;
 	}
