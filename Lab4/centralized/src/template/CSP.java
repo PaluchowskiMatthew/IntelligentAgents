@@ -90,37 +90,31 @@ public class CSP {
 	
 	CSPSolution selectInitialSolution() {
 		CSPSolution initialSolution = new CSPSolution(vehicles, deliveryTasks);
-
 		int currentVehicleIndex = 0;
+		List<Task> previousTasks = new ArrayList<Task>();
+		for(Vehicle vehicle: vehicles) {
+			previousTasks.add(null);
+		}
+		
 		Vehicle currentVehicle = vehicles.get(currentVehicleIndex);
-		int timePoint = 1;
-		Task previousVehicleTask = null;
+		Task previousTask = previousTasks.get(currentVehicleIndex);
+		
 		for (Task task : deliveryTasks) {
-			int vehicleWeight = weight(initialSolution, currentVehicle, timePoint);
-			int currentTaskWeight = task.weight;
-
-			while (currentVehicle.capacity() < vehicleWeight + currentTaskWeight) {
-				// get nextVehicle
-				previousVehicleTask = null;
-				currentVehicleIndex += 1;
-				if (currentVehicleIndex >= vehicles.size()) {
-					return null; // no solution
-				}
-				currentVehicle = vehicles.get(currentVehicleIndex);
-				vehicleWeight = weight(initialSolution, currentVehicle, timePoint);
-				currentTaskWeight = task.weight;
-			}
-			
-			initialSolution.setTime(task, timePoint);
 			initialSolution.setVehicle(task, currentVehicle);
-			if (previousVehicleTask == null) {
+			if (previousTask == null) {
 				initialSolution.setNextTask(currentVehicle, task);
 			} else {
-				initialSolution.setNextTask(previousVehicleTask, task);
+				initialSolution.setNextTask(previousTask, task);
 			}
-			previousVehicleTask = task;
-
-			timePoint += 1;
+			previousTasks.set(currentVehicleIndex,task);
+			updateTime(initialSolution, currentVehicle);
+			currentVehicleIndex += 1;
+			if (currentVehicleIndex >= vehicles.size()) {
+				currentVehicleIndex = 0;
+			}
+			currentVehicle = vehicles.get(currentVehicleIndex);
+			previousTask = previousTasks.get(currentVehicleIndex);
+			
 			
 		}
 		return initialSolution;
