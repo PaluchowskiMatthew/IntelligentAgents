@@ -247,9 +247,7 @@ public class CSP {
 			}
 			current = A.getNextTask(current);
 		}
-		
-		return A1;
-				
+		return A1;			
 	}
 	
 
@@ -293,8 +291,6 @@ public class CSP {
 
 	CSPSolution changeVehicle(CSPSolution A, Vehicle v1, Vehicle v2) {
 		CSPSolution A1 = new CSPSolution(A);
-//		Task t = A1.getNextTask(v1);
-		
 		int length = amountOfTasks(A, v1);
 		Random r1 = new Random();
 		int tIdx1 = r1.nextInt(length) + 1;
@@ -324,15 +320,6 @@ public class CSP {
 		
 		A1.setTimeInTrunk(t1, 1);
 		A1.setVehicle(t1, v2);
-		
-		
-		
-//		A1.setNextTask(v1, A1.getNextTask(t));
-//		A1.setNextTask(t, A1.getNextTask(v2));
-//		A1.setNextTask(v2, t);
-		
-//		A1.setTimeInTrunk(t, 1);
-//		A1.setVehicle(t, v2);
 		
 		updateTime(A1, v1);
 		updateTime(A1, v2);
