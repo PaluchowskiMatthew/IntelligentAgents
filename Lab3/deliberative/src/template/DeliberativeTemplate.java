@@ -64,6 +64,8 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 			plan = AStarPlan(vehicle, tasks);
 			long end = System.currentTimeMillis();
 			System.out.println("Time ASTAR "+ (end - start)/1000.0 + " seconds");
+			double costOfPlan = plan.totalDistance() * vehicle.costPerKm();
+			System.out.println("Cost of Plan for vehicle " + vehicle.id() + ": " + costOfPlan);
 			break;
 		case BFS:
 			long start2 = System.currentTimeMillis();

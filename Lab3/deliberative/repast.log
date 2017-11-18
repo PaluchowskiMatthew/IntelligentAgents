@@ -1,0 +1,13 @@
+Error loading persistent frame size and positions
+org.xml.sax.SAXParseException: Premature end of file.
+	at com.sun.org.apache.xerces.internal.parsers.DOMParser.parse(DOMParser.java:247)
+	at com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl.parse(DocumentBuilderImpl.java:287)
+	at javax.xml.parsers.DocumentBuilder.parse(DocumentBuilder.java:153)
+	at uchicago.src.sim.gui.FrameFactory.loadXML(Unknown Source)
+	at uchicago.src.sim.gui.FrameFactory.load(Unknown Source)
+	at uchicago.src.sim.engine.SimInit.load(Unknown Source)
+	at uchicago.src.sim.engine.SimInit.load(Unknown Source)
+	at uchicago.src.sim.engine.SimInit.loadModel(Unknown Source)
+	at logist.simulation.Simulation.run(Simulation.java:67)
+	at logist.simulation.Manager.run(Manager.java:61)
+	at logist.LogistPlatform.main(LogistPlatform.java:126)

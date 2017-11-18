@@ -7,7 +7,7 @@
 	<settings import="config/settings_default.xml" />
 
 	<!-- load the topology from an external file -->
-	<topology import="config/topology/england.xml" />
+	<topology import="config/topology/switzerland.xml" />
 
 	<!-- load agents -->
 	<agents import="config/agents.xml" />
@@ -26,9 +26,22 @@
 	<!-- the companies and vehicles in the simulation -->
 	<companies>
 		<company name="Company A">
-			
-			<!-- the first vehicle (blue) -->
 			<vehicle name="Vehicle 1">
+				<set color="#0000ff" />
+				<set home="Lausanne" />
+				<set speed="90" />
+				<set capacity="30" />
+				<set cost-per-km="5" />
+			</vehicle>
+			<vehicle name="Vehicle 2">
+				<set color="#ff0000" />
+				<set home="Zürich" />
+				<set speed="90" />
+				<set capacity="30" />
+				<set cost-per-km="5" />
+			</vehicle>
+			<!-- the first vehicle (blue) -->
+			<!-- <vehicle name="Vehicle 1">
 				<set color="#0000ff" />
 				<set home="Newcastle" />
 				<set speed="90" />
@@ -36,7 +49,7 @@
 				<set cost-per-km="5" />
 			</vehicle>
 			
-			<!-- the second vehicle (red) -->
+			the second vehicle (red)
 			<vehicle name="Vehicle 2">
 				<set color="#ff0000" />
 				<set home="Cardiff" />
@@ -45,7 +58,7 @@
 				<set cost-per-km="5" />
 			</vehicle>
 			
-			<!-- the third vehicle (green) -->
+ 			the third vehicle (green)
 			<vehicle name="Vehicle 3">
 				<set color="#00ff00" />
 				<set home="Plymouth" />
@@ -54,14 +67,15 @@
 				<set cost-per-km="5" />
 			</vehicle>
 			
-			<!-- the fourth vehicle (yellow) -->
+			the fourth vehicle (yellow)
 			<vehicle name="Vehicle 4">
 				<set color="#ffff00" />
 				<set home="Norwich" />
 				<set speed="90" />
 				<set capacity="30" />
 				<set cost-per-km="5" />
-			</vehicle>
+			</vehicle> --> -->
+			
 			
 		</company>
 	</companies>
