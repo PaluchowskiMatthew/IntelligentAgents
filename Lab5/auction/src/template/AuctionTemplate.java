@@ -2,6 +2,7 @@ package template;
 
 //the list of imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -28,9 +29,15 @@ public class AuctionTemplate implements AuctionBehavior {
 	private TaskDistribution distribution;
 	private Agent agent;
 	private Random random;
-	private Vehicle vehicle;
-	private City currentCity;
+	private double costOfAgent;
+//	private Vehicle vehicle;
+//	private City currentCity;
 
+//	private List<Task> tasksWon; // Not needed. agent.getTasks() is the same.
+	private List<Task> allTasks;
+	private HashMap<Task, Integer> taskWinner = new HashMap<Task, Integer>();
+	private HashMap<Task, Long[]> taskBids = new HashMap<Task, Long[]>();
+	
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution,
 			Agent agent) {
@@ -38,33 +45,49 @@ public class AuctionTemplate implements AuctionBehavior {
 		this.topology = topology;
 		this.distribution = distribution;
 		this.agent = agent;
-		this.vehicle = agent.vehicles().get(0);
-		this.currentCity = vehicle.homeCity();
+		this.costOfAgent = Double.MIN_VALUE;
+//		this.vehicle = agent.vehicles().get(0);
+//		this.currentCity = vehicle.homeCity();
 
-		long seed = -9019554669489983951L * currentCity.hashCode() * agent.id();
+		long seed = -9019554669489983951L * distribution.hashCode() * agent.id();
 		this.random = new Random(seed);
+		
 	}
 
 	@Override
-	public void auctionResult(Task previous, int winner, Long[] bids) {
-		if (winner == agent.id()) {
-			currentCity = previous.deliveryCity;
+	public void auctionResult(Task previous, int winner, Long[] bids) { 
+		// NOT NEEDED - its for dummy agent
+//		if (winner == agent.id()) {
+//			currentCity = previous.deliveryCity;
+//		}
+		if(previous != null) {
+			allTasks.add(previous);
+			taskWinner.put(previous, winner);
+			taskBids.put(previous, bids);
 		}
 	}
 	
 	@Override
 	public Long askPrice(Task task) {
 
-		if (vehicle.capacity() < task.weight)
-			return null;
-
-		long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
-		long distanceSum = distanceTask
-				+ currentCity.distanceUnitsTo(task.pickupCity);
-		double marginalCost = Measures.unitsToKM(distanceSum
-				* vehicle.costPerKm());
-
-		double ratio = 1.0 + (random.nextDouble() * 0.05 * task.id);
+//		if (vehicle.capacity() < task.weight)
+//			return null;
+//
+//		long distanceTask = task.pickupCity.distanceUnitsTo(task.deliveryCity);
+//		long distanceSum = distanceTask
+//				+ currentCity.distanceUnitsTo(task.pickupCity);
+//		double marginalCost = Measures.unitsToKM(distanceSum
+//				* vehicle.costPerKm());
+		TaskSet tempTasks = agent.getTasks();
+		List<Vehicle> agentVehicles = agent.vehicles();
+		tempTasks.add(task);
+		
+		CSP csp = new CSP(agentVehicles, tempTasks, 0.95, 1000);
+		CSPSolution bestSolution = csp.calculateCSP();
+		double solutionCost = csp.calculateTotalCost(bestSolution);
+		double marginalCost = solutionCost - costOfAgent;
+	
+		double ratio = 1.0; // + (random.nextDouble() * 0.05 * task.id);
 		double bid = ratio * marginalCost;
 
 		return (long) Math.round(bid);
