@@ -1,0 +1,20 @@
+TOURNAMENT HOWTO:
+
+1. Tournament folder needs to be empty! (only agents.xml inside. delete all rest)
+2. agents should be extracted from eclipse as runnable jars and with all external jars extracted to the final runnable jar
+3. agents.xml should look like that
+<agents>
+	<!-- An auto-generated list of agents and their behavior classes -->
+	<!--  - jar directory : ./agents/ -->
+	<!--  - generated on  : Mon Nov 20 14:20:45 CET 2017 -->
+	<agent name="auctionAgent">
+		<set class-path="./agents/auctionAgent.jar"/>
+		<set class-name="template.AuctionTemplate"/>
+	</agent>
+	<agent name="auctionDummy">
+		<set class-path="./agents/auctionDummy.jar"/>
+		<set class-name="template.AuctionTemplate"/>
+	</agent>
+</agents>
+4. create tournament: java -jar 'logist/logist.jar' -new 'csptour' './agents'
+5. run tournament: java -jar 'logist/logist.jar' -run 'csptour' 'config/auction.xml'
