@@ -69,21 +69,39 @@ public class AuctionTemplate implements AuctionBehavior {
 
 		return (long) Math.round(bid);
 	}
-
-	@Override
+	
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-		
-//		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
+        long time_start = System.currentTimeMillis();
+        List<Plan> plans = centralizedPlan(vehicles, tasks);
+        
+        long time_end = System.currentTimeMillis();
+        long duration = time_end - time_start;
+        System.out.println("The plan was generated in "+duration+" milliseconds.");
+        
+        return plans;
+    }
+    
+    private List<Plan> centralizedPlan(List<Vehicle> vehicles, TaskSet tasks) {
+    	
+    		CSP csp = new CSP(vehicles, tasks, 0.95, 1000);
+    		List <Plan> plans = csp.createCentralizedPlan();
+    		return plans;
+    }
 
-		Plan planVehicle1 = naivePlan(vehicle, tasks);
-
-		List<Plan> plans = new ArrayList<Plan>();
-		plans.add(planVehicle1);
-		while (plans.size() < vehicles.size())
-			plans.add(Plan.EMPTY);
-
-		return plans;
-	}
+//	@Override
+//	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
+//		
+////		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
+//
+//		Plan planVehicle1 = naivePlan(vehicle, tasks);
+//
+//		List<Plan> plans = new ArrayList<Plan>();
+//		plans.add(planVehicle1);
+//		while (plans.size() < vehicles.size())
+//			plans.add(Plan.EMPTY);
+//
+//		return plans;
+//	}
 
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
 		City current = vehicle.getCurrentCity();
@@ -107,4 +125,6 @@ public class AuctionTemplate implements AuctionBehavior {
 		}
 		return plan;
 	}
+	
+	
 }
