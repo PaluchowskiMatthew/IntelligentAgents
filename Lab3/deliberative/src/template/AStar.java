@@ -25,7 +25,6 @@ public class AStar {
 
 		State finalState = AStarAlgorithm(vehicle, tasks);
 		Plan plan = finalState.plan;
-		System.out.println(plan);
 		return plan;
 	}
 
@@ -33,8 +32,7 @@ public class AStar {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
 
-		State initialState = new State(vehicle.getCurrentCity(), vehicle.getCurrentCity(),
-				vehicle.getCurrentTasks(), tasks, plan); // n
+		State initialState = new State(vehicle.getCurrentCity(), vehicle.getCurrentCity(),vehicle.getCurrentTasks(), tasks, plan); // n
 		Q.add(initialState);
 
 		State finalState = null;

@@ -34,36 +34,15 @@ public class CSP {
 	public CSPSolution calculateCSP() {
 		CSPSolution A = selectInitialSolution();
 		int iteration = 1;
-		boolean iterate = true;
-		
-		CSPSolution bestFoundSolution = null;
-		double bestFoundSolutionCost = Double.MAX_VALUE;
-		int iterationsAfterBestSolutionFound = 0;
-		
 		do {
 			CSPSolution Aold = new CSPSolution(A);
 			List<CSPSolution> N = chooseNeighbours(Aold);
 			A = localChoice(N, A);
-			
-			double minCost = calculateTotalCost(A);
-			if(minCost < bestFoundSolutionCost) {
-				bestFoundSolutionCost = minCost;
-				bestFoundSolution = A;
-				iterationsAfterBestSolutionFound = 0;
-			}
-			
-			if(iterationsAfterBestSolutionFound >= 150) {
-				iterate = false;
-			}
-			System.out.println("Iteration: " + iteration);
-			System.out.println("Iteration after best: " + iterationsAfterBestSolutionFound);
-			iterationsAfterBestSolutionFound += 1;
 			iteration += 1;
-		} while ( (iteration < iterations) && iterate );
-//		double minCost = calculateTotalCost(bestFoundSolution);
-//		System.out.println("Solution total cost: " + minCost);
-		
-		return bestFoundSolution;
+		} while (iteration < iterations);
+		double minCost = calculateTotalCost(A);
+		System.out.println("Solution total cost: " + minCost);
+		return A;
 	}
 
 	public List<Plan> createCentralizedPlan() {
@@ -102,11 +81,7 @@ public class CSP {
 					currentTask = bestSolution.getNextTask(currentTask);
 				}
 				plans.add(plan);
-				
-				double costOfPlan = plan.totalDistance() * vehicle.costPerKm();
-				System.out.println("Cost of Plan for vehicle " + vehicle.id() + ": " + costOfPlan);
 			}
-			
 		}
 		return plans;
 	}
