@@ -4,57 +4,56 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskSet;
 
 public class CSPSolution {
-	// Do we actually need this split into tasks for vehicle and for action?
-		HashMap<Vehicle, Task> TasksForVehicleAction = new HashMap<Vehicle, Task>();
+	// Do we actually need this split into tasks for CustomVehicle and for action?
+		HashMap<CustomVehicle, Task> TasksForCustomVehicleAction = new HashMap<CustomVehicle, Task>();
 		HashMap<Task, Task> TasksForTask = new HashMap<Task, Task>();
 		HashMap<Task, Integer> time = new HashMap<Task, Integer>();
 		HashMap<Task, Integer> timeInTrunk = new HashMap<Task, Integer>();
-		HashMap<Task, Vehicle> vehicle = new HashMap<Task, Vehicle>();
+		HashMap<Task, CustomVehicle> CustomVehicle = new HashMap<Task, CustomVehicle>();
 
 		
-		public CSPSolution(List<Vehicle> vehicles, TaskSet deliveryTasks) {
+		public CSPSolution(List<CustomVehicle> CustomVehicles, TaskSet deliveryTasks) {
 			// initialize HashMaps
-			for(Vehicle v: vehicles) {
-				TasksForVehicleAction.put(v, null);
+			for(CustomVehicle v: CustomVehicles) {
+				TasksForCustomVehicleAction.put(v, null);
 			}
 			for(Task task: deliveryTasks) {
 					TasksForTask.put(task, null);
 					time.put(task, 1);
 					timeInTrunk.put(task, 1);
-					vehicle.put(task, null);
+					CustomVehicle.put(task, null);
 			}
 		}
 		
 		// Copy constructor
 		public CSPSolution(CSPSolution differentSolution) {
-			this.TasksForVehicleAction = new HashMap<Vehicle, Task>(differentSolution.TasksForVehicleAction);
+			this.TasksForCustomVehicleAction = new HashMap<CustomVehicle, Task>(differentSolution.TasksForCustomVehicleAction);
 			this.TasksForTask = new HashMap<Task, Task>(differentSolution.TasksForTask);
 			this.time = new HashMap<Task, Integer>(differentSolution.time);
-			this.vehicle = new HashMap<Task, Vehicle>(differentSolution.vehicle);
+			this.CustomVehicle = new HashMap<Task, CustomVehicle>(differentSolution.CustomVehicle);
 			this.timeInTrunk = new HashMap<Task, Integer>(differentSolution.timeInTrunk);
 		}
 		
-		public List<Vehicle> getInvolvedVehicles(){
-			List<Vehicle> vehiclesInvolved = new ArrayList<Vehicle>();
+		public List<CustomVehicle> getInvolvedCustomVehicles(){
+			List<CustomVehicle> CustomVehiclesInvolved = new ArrayList<CustomVehicle>();
 			
-			for (Vehicle keyVehicle: TasksForVehicleAction.keySet()) {
-				Task t = TasksForVehicleAction.get(keyVehicle);
-				if(t != null && !vehiclesInvolved.contains(keyVehicle)) {
-					vehiclesInvolved.add(keyVehicle);
+			for (CustomVehicle keyCustomVehicle: TasksForCustomVehicleAction.keySet()) {
+				Task t = TasksForCustomVehicleAction.get(keyCustomVehicle);
+				if(t != null && !CustomVehiclesInvolved.contains(keyCustomVehicle)) {
+					CustomVehiclesInvolved.add(keyCustomVehicle);
 				}
 			}
-			return vehiclesInvolved;
+			return CustomVehiclesInvolved;
 		}
 		
 		public List<Task> getAllTasks(){
 			List<Task> Tasks = new ArrayList<Task>();
 			
-			for (Task key: vehicle.keySet()) {
+			for (Task key: CustomVehicle.keySet()) {
 				if(key != null) {
 					Tasks.add(key);
 				}
@@ -63,12 +62,12 @@ public class CSPSolution {
 			return Tasks;
 		}
 		
-		public Task getNextTask(Vehicle v) {
-			return TasksForVehicleAction.get(v);
+		public Task getNextTask(CustomVehicle v) {
+			return TasksForCustomVehicleAction.get(v);
 		}
 		
-		public void setNextTask(Vehicle v, Task Task) {
-			TasksForVehicleAction.put(v, Task);
+		public void setNextTask(CustomVehicle v, Task Task) {
+			TasksForCustomVehicleAction.put(v, Task);
 		}
 		
 		public Task	getNextTask(Task Task) {
@@ -87,12 +86,12 @@ public class CSPSolution {
 			time.put(key, t);
 		}
 		
-		public Vehicle	getVehicle(Task Task) {
-			return vehicle.get(Task);
+		public CustomVehicle	getCustomVehicle(Task Task) {
+			return CustomVehicle.get(Task);
 		}
 		
-		public void setVehicle(Task key, Vehicle v) {
-			vehicle.put(key, v);
+		public void setCustomVehicle(Task key, CustomVehicle v) {
+			CustomVehicle.put(key, v);
 		}
 
 		
