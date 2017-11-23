@@ -1,0 +1,111 @@
+02:36:26.702 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/tour/auction-auctionDummy-auctionSmartAgent.xml -a tournament/tour/agents.xml config/auction.xml auctionDummy auctionSmartAgent
+02:36:26.892 CONFIG | Reading config/auction.xml
+02:36:26.957 CONFIG | Reading config/settings_auction.xml
+02:36:27.147 CONFIG | Reading config/topology/france.xml
+02:36:27.161 CONFIG | Reading tournament/tour/agents.xml
+02:36:27.227 CONFIG | Round: 0.0
+02:36:27.228 CONFIG | Predict cost:20384.0
+02:36:27.246 CONFIG | Round: 1.0
+02:36:27.247 CONFIG | Predict cost:20384.0
+02:36:27.260 CONFIG | Round: 2.0
+02:36:27.261 CONFIG | Predict cost:8568.0
+02:36:27.274 CONFIG | Round: 3.0
+02:36:27.274 CONFIG | Predict cost:12992.0
+02:36:27.300 CONFIG | Round: 4.0
+02:36:27.300 CONFIG | Predict cost:5896.0
+02:36:27.314 CONFIG | Round: 5.0
+02:36:27.314 CONFIG | Predict cost:9344.0
+02:36:27.341 CONFIG | Round: 6.0
+02:36:27.341 CONFIG | Predict cost:6752.0
+02:36:27.371 CONFIG | Round: 7.0
+02:36:27.371 CONFIG | Predict cost:9400.0
+02:36:27.398 CONFIG | Round: 8.0
+02:36:27.398 CONFIG | Predict cost:0.0
+02:36:27.419 CONFIG | Round: 9.0
+02:36:27.420 CONFIG | Predict cost:7584.0
+02:36:27.447 CONFIG | Round: 10.0
+02:36:27.447 CONFIG | Predict cost:6536.0
+02:36:27.486 CONFIG | Round: 11.0
+02:36:27.486 CONFIG | Predict cost:2280.0
+02:36:27.530 CONFIG | Round: 12.0
+02:36:27.530 CONFIG | Predict cost:4632.0
+02:36:27.554 CONFIG | Round: 13.0
+02:36:27.555 CONFIG | Predict cost:2384.0
+02:36:27.908 CONFIG | Round: 14.0
+02:36:27.908 CONFIG | Predict cost:13872.0
+02:36:27.968 CONFIG | Round: 15.0
+02:36:27.968 CONFIG | Predict cost:3136.0
+02:36:28.022 CONFIG | Round: 16.0
+02:36:28.022 CONFIG | Predict cost:2280.0
+02:36:28.085 CONFIG | Round: 17.0
+02:36:28.085 CONFIG | Predict cost:0.0
+02:36:28.136 CONFIG | Cost of Plan for CustomVehicle 0: 47606.0
+02:36:28.137 CONFIG | Cost of Plan for CustomVehicle 1: 59416.0
+02:36:28.137 CONFIG | The plan was generated in 49 milliseconds.
+02:36:28.138 WARNING | Exception in thread "main" Illegal pickup: Task weight exceeds remaining vehicle capacity
+02:36:28.143 WARNING | 	Current tasks : [(Task 12, 10 kg, 0 CHF, Genève -> Monaco), (Task 14, 10 kg, 0 CHF, Strasbourg -> Brest), (Task 17, 10 kg, 0 CHF, Bordeaux -> Paris)]
+02:36:28.144 WARNING | 	Current load  : 30 / 35 kg
+02:36:28.144 WARNING | 	Pickup task   : (Task 13, 10 kg, 0 CHF, Genève -> Lyon)
+02:36:28.145 WARNING | 	at logist.plan.PlanVerifier.verifyPlan(PlanVerifier.java:58)
+02:36:28.146 WARNING | 	at logist.agent.AuctionAgent.nextAction(AuctionAgent.java:150)
+02:36:28.146 WARNING | 	at logist.simulation.VehicleImpl.executeNextAction(VehicleImpl.java:84)
+02:36:28.147 WARNING | 	at logist.simulation.Simulation.step(Simulation.java:109)
+02:36:28.148 WARNING | 	at logist.simulation.Simulation.run(Simulation.java:78)
+02:36:28.149 WARNING | 	at logist.simulation.Manager.run(Manager.java:62)
+02:36:28.150 WARNING | 	at logist.LogistPlatform.main(LogistPlatform.java:126)
+02:37:28.546 SEVERE | LogistPlatform returned error code 1
+02:37:28.548 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/tour/auction-auctionSmartAgent-auctionDummy.xml -a tournament/tour/agents.xml config/auction.xml auctionSmartAgent auctionDummy
+02:37:28.691 CONFIG | Reading config/auction.xml
+02:37:28.752 CONFIG | Reading config/settings_auction.xml
+02:37:28.942 CONFIG | Reading config/topology/france.xml
+02:37:28.955 CONFIG | Reading tournament/tour/agents.xml
+02:37:29.028 CONFIG | Round: 0.0
+02:37:29.029 CONFIG | Predict cost:19411.0
+02:37:29.053 CONFIG | Round: 1.0
+02:37:29.053 CONFIG | Predict cost:17836.0
+02:37:29.070 CONFIG | Round: 2.0
+02:37:29.070 CONFIG | Predict cost:7497.0
+02:37:29.101 CONFIG | Round: 3.0
+02:37:29.102 CONFIG | Predict cost:11368.0
+02:37:29.132 CONFIG | Round: 4.0
+02:37:29.132 CONFIG | Predict cost:5159.0
+02:37:29.154 CONFIG | Round: 5.0
+02:37:29.155 CONFIG | Predict cost:8176.0
+02:37:29.173 CONFIG | Round: 6.0
+02:37:29.174 CONFIG | Predict cost:6328.0
+02:37:29.196 CONFIG | Round: 7.0
+02:37:29.196 CONFIG | Predict cost:9611.0
+02:37:29.210 CONFIG | Round: 8.0
+02:37:29.210 CONFIG | Predict cost:6370.0
+02:37:29.225 CONFIG | Round: 9.0
+02:37:29.225 CONFIG | Predict cost:4830.0
+02:37:29.262 CONFIG | Round: 10.0
+02:37:29.262 CONFIG | Predict cost:3913.0
+02:37:29.291 CONFIG | Round: 11.0
+02:37:29.291 CONFIG | Predict cost:3150.0
+02:37:29.311 CONFIG | Round: 12.0
+02:37:29.311 CONFIG | Predict cost:4053.0
+02:37:29.342 CONFIG | Round: 13.0
+02:37:29.342 CONFIG | Predict cost:2086.0
+02:37:29.370 CONFIG | Round: 14.0
+02:37:29.370 CONFIG | Predict cost:3913.0
+02:37:29.387 CONFIG | Round: 15.0
+02:37:29.387 CONFIG | Predict cost:2744.0
+02:37:29.456 CONFIG | Round: 16.0
+02:37:29.459 CONFIG | Predict cost:6384.0
+02:37:29.488 CONFIG | Round: 17.0
+02:37:29.488 CONFIG | Predict cost:0.0
+02:37:53.543 CONFIG | Cost of Plan for CustomVehicle 1: 87045.0
+02:37:53.545 WARNING | Exception in thread "main" Illegal pickup: Task weight exceeds remaining vehicle capacity
+02:37:53.550 CONFIG | The plan was generated in 24054 milliseconds.
+02:37:53.551 WARNING | 	Current tasks : [(Task 9, 10 kg, 0 CHF, Genève -> Le Havre), (Task 11, 10 kg, 0 CHF, Marseille -> Monaco), (Task 12, 10 kg, 0 CHF, Genève -> Monaco)]
+02:37:53.552 WARNING | 	Current load  : 30 / 35 kg
+02:37:53.552 WARNING | 	Pickup task   : (Task 13, 10 kg, 0 CHF, Genève -> Lyon)
+02:37:53.553 WARNING | 	at logist.plan.PlanVerifier.verifyPlan(PlanVerifier.java:58)
+02:37:53.554 WARNING | 	at logist.agent.AuctionAgent.nextAction(AuctionAgent.java:150)
+02:37:53.554 WARNING | 	at logist.simulation.VehicleImpl.executeNextAction(VehicleImpl.java:84)
+02:37:53.554 WARNING | 	at logist.simulation.Simulation.step(Simulation.java:109)
+02:37:53.555 WARNING | 	at logist.simulation.Simulation.run(Simulation.java:78)
+02:37:53.556 WARNING | 	at logist.simulation.Manager.run(Manager.java:62)
+02:37:53.556 WARNING | 	at logist.LogistPlatform.main(LogistPlatform.java:126)
+02:38:54.649 SEVERE | LogistPlatform returned error code 1
