@@ -18,3 +18,4 @@ TOURNAMENT HOWTO:
 </agents>
 4. create tournament: java -jar 'logist/logist.jar' -new 'csptour' './agents'
 5. run tournament: java -jar 'logist/logist.jar' -run 'csptour' 'config/auction.xml'
+6. score tournament: java -jar 'logist/logist.jar' -score 'csptour' 'score.txt'

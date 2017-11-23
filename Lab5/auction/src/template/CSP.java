@@ -15,7 +15,7 @@ import logist.topology.Topology.City;
 
 public class CSP {
 	List<CustomVehicle> CustomVehicles;
-	TaskSet deliveryTasks;
+	List<Task> deliveryTasks;
 
 	// If there are multiple equally good assignments,
 	// it chooses one randomly. Then with probability p it returns A,
@@ -23,7 +23,7 @@ public class CSP {
 	double probability;
 	int iterations;
 
-	public CSP(List<CustomVehicle> CustomVehicles, TaskSet deliveryTasks, double p, int iterations) {
+	public CSP(List<CustomVehicle> CustomVehicles, List<Task> deliveryTasks, double p, int iterations) {
 		this.CustomVehicles = CustomVehicles;
 		this.deliveryTasks = deliveryTasks;
 		this.probability = p;

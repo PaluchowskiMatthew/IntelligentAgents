@@ -16,7 +16,7 @@ public class CSPSolution {
 		HashMap<Task, CustomVehicle> CustomVehicle = new HashMap<Task, CustomVehicle>();
 
 		
-		public CSPSolution(List<CustomVehicle> CustomVehicles, TaskSet deliveryTasks) {
+		public CSPSolution(List<CustomVehicle> CustomVehicles, List<Task> deliveryTasks) {
 			// initialize HashMaps
 			for(CustomVehicle v: CustomVehicles) {
 				TasksForCustomVehicleAction.put(v, null);

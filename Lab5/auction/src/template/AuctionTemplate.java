@@ -29,17 +29,39 @@ public class AuctionTemplate implements AuctionBehavior {
 	private TaskDistribution distribution;
 	private Agent agent;
 	private Random random;
-	private double costOfAgent;
-	private int biddingRound;
-//	private Vehicle vehicle;
-//	private City currentCity;
+	
+	private double ourCost;
+	private double ourNewCost;
+	private double oppCost;
+	private double oppNewCost;
+	
+	private double ourReward;
+	private double oppReward;
 
-//	private List<Task> tasksWon; // Not needed. agent.getTasks() is the same.
 	private List<Task> allTasks;
 	private List<Task> opponentsTasks;
+	
+	private CustomVehicle biggestVehicle;
+	private int biggestVehicleCapacity = Integer.MIN_VALUE;
+	
+	private List<CustomVehicle> ourVehicles;
 	private List<CustomVehicle> opponentsVehicles;
-	private HashMap<Task, Integer> taskWinner = new HashMap<Task, Integer>();
-	private HashMap<Task, Long[]> taskBids = new HashMap<Task, Long[]>();
+	
+	final static double riskyRounds = 5;
+	final static double totalRounds = 17;
+	private double round = 0;
+	private double tasksWon = 0;
+
+	final static double riskyRate = 0.65;
+	final static double initialRate = 0.85;
+
+	private double oppRatio = 0.8;
+	private double ourRatio = 0.65;
+
+	private double ourMax = riskyRate;
+	private double ourMin = riskyRate;
+
+	private double bidOppMin = Double.MAX_VALUE;
 	
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution,
@@ -48,40 +70,141 @@ public class AuctionTemplate implements AuctionBehavior {
 		this.topology = topology;
 		this.distribution = distribution;
 		this.agent = agent;
-		this.costOfAgent = Double.MIN_VALUE;
-		this.biddingRound = 0;
 
 		long seed = -9019554669489983951L * distribution.hashCode() * agent.id();
 		this.random = new Random(seed);
 		
 		this.allTasks = new ArrayList<Task>();
 		this.opponentsTasks = new ArrayList<Task>();
+		this.ourVehicles = new ArrayList<CustomVehicle>();
 		this.opponentsVehicles = new ArrayList<CustomVehicle>(); // naively assume same vehicles as ours
 		for(Vehicle v: agent.vehicles()) {
 			CustomVehicle custVehicle = new CustomVehicle(v);
+			ourVehicles.add(custVehicle);
 			opponentsVehicles.add(custVehicle);
+			if(custVehicle.getCapacity() > biggestVehicleCapacity) {
+				this.biggestVehicleCapacity = custVehicle.getCapacity();
+				this.biggestVehicle = custVehicle;
+			}
 		}
 	}
-
+	
 	@Override
-	public void auctionResult(Task previous, int winner, Long[] bids) { 
-		long ourBid = bids[agent.id()];
-		long opponentBid = bids[1-agent.id()]; // works because id's range from 0 to 1.
-		// NOT NEEDED - its for dummy agent
-		if (winner != agent.id()) {
-//			currentCity = previous.deliveryCity;
+	public void auctionResult(Task previous, int winner, Long[] bids) {
+		if(agent.id() != winner) {
 			opponentsTasks.add(previous);
 		}
-		if(previous != null) {
-			allTasks.add(previous);
-			taskWinner.put(previous, winner);
-			taskBids.put(previous, bids);
+		
+		long ourBid = bids[agent.id()];
+		long oppBid = bids[1 - agent.id()]; // works because id's range from 0 to 1.
+		if (oppBid < bidOppMin) {
+			bidOppMin = oppBid;
+		}
+
+		double trueOppRatio = (oppNewCost - oppCost);
+		double epsilon = 0.1 + (0.01 - 0.1)*Math.exp(-((totalRounds - round)/(round)));
+
+		//Every round upper and lower bound of the ratio are set to reflect a specific strategy
+		if(round < riskyRounds){
+			//In the beginning bids are set to be realy low. This risky behaviour is meant to capture at least a few tasks in the beginning to profit from cost-synergies between packages later on.
+			ourMin = riskyRate + (initialRate - riskyRate)*Math.exp((round -riskyRounds)/round);
+			ourMax = riskyRate;
+		}
+		else if (round < totalRounds) {
+			//In between 'riskyround' and 'totalround' lost profit from risky bids are gradually won back. (Total amount of rounds is estimated to be around 17)
+			double prof = (ourCost - ourReward)/((totalRounds - round)*0.65);
+			double avgMC = ourCost/tasksWon;
+			double profRatio = (avgMC + prof)/avgMC;
+			ourMin = profRatio*(1 - 0.25*((totalRounds - round)/(totalRounds - riskyRounds)));
+			ourMax = Double.MAX_VALUE;
+		}
+		else{
+			//After estimated amount of rounds missed profits should be retreived in one round time. If their is excess profit than it is allowed bid low.
+			double avgMC = ourCost/tasksWon;
+			ourMin = (avgMC + (ourCost - ourReward))/avgMC;
+			ourMax = Double.MAX_VALUE;
 		}
 		
 		
-		if(biddingRound == 1) {
-			infereOpponentsInitialCity(previous, opponentBid);
+		if (winner == agent.id()) {
+			//When a task is won, oppRatio is changed to better reflect opp bid and myRatio is slightly upped
+			ourCost = ourNewCost;
+			ourReward += ourBid;
+			tasksWon++;
+//			myPlan.updatePlan(); // to verify
+
+			ourRatio = Math.min(ourMax, ourRatio + epsilon);
+			oppRatio += ((oppBid/(oppNewCost - oppCost)) - oppRatio)*0.25;
+
+		} else {
+			//Task lost, oppRatio is changed to better reflect oppBid and myRatio is slightly lowered
+			oppCost = oppNewCost;
+			oppReward += oppBid;
+//			oppPlan.updatePlan(); // to verify
+
+			ourRatio = Math.max(ourMin, ourRatio - epsilon);
+			oppRatio += ((oppBid/(oppNewCost - oppCost)) - oppRatio)*0.5;
 		}
+
+		//Code to reassign one of the opponents vehicles to another city
+		if (round == 1) {
+			infereOpponentsInitialCity(previous, oppBid);
+		}
+	}
+	
+	@Override
+	public Long askPrice(Task task) {
+		if (biggestVehicleCapacity < task.weight)
+			//Package not compatible with fleet
+			return null;
+
+		ourNewCost = ourMarginalCost(task);
+		oppNewCost = opponentsMarginalCost(task);
+
+		double myMarginalCost = ourNewCost - ourCost;
+		double oppMarginalCost = oppNewCost - oppCost;
+
+		System.out.println("Round: " + round);
+		System.out.println("Predict cost:" + oppMarginalCost);
+
+		double ourBid = 0.0;
+		if (round < riskyRounds) {
+			//During riskyrounds stick to own ratio to do riskier bids
+			ourBid = ourRatio*myMarginalCost;
+		}
+		else{
+			//Take maximum of predicted oppBid, minimum bid opp or own bid
+			ourBid = Math.max(Math.max(oppMarginalCost * oppRatio, ourRatio * myMarginalCost), bidOppMin - 1);
+		}
+		
+		round++;
+
+		return (long) Math.floor(ourBid);
+	}
+	
+	public double ourMarginalCost(Task task) {
+		TaskSet previousTasks = agent.getTasks();
+		List<Task> tempOppTasks = new ArrayList<Task>(previousTasks);
+		tempOppTasks.add(task);
+		
+		CSP csp = new CSP(ourVehicles, tempOppTasks, 0.95, 1000);
+		CSPSolution bestSolution = csp.calculateCSP();
+		
+		double solutionCost = csp.calculateTotalCost(bestSolution);
+		
+		return solutionCost;
+	}
+	
+	public double opponentsMarginalCost(Task task) {
+		List<Task> tempOppTasks = new ArrayList<Task>(opponentsTasks);
+		tempOppTasks.add(task);
+		
+		CSP csp = new CSP(opponentsVehicles, tempOppTasks, 0.95, 1000);
+		CSPSolution bestOpponentSolution = csp.calculateCSP();
+		
+		double solutionCost = csp.calculateTotalCost(bestOpponentSolution);
+		
+		return solutionCost;
 	}
 	
 	public void infereOpponentsInitialCity(Task task, Long opponentBid) {
@@ -124,55 +247,6 @@ public class AuctionTemplate implements AuctionBehavior {
 		opponentsVehicles.get(0).setInitCity(opponentsInitialCity);
 	}
 	
-	@Override
-	public Long askPrice(Task task) {
-		double marginalCost = agentsMarginalCost(task);
-	
-		double ratio = 1.0; // + (random.nextDouble() * 0.05 * task.id);
-		double bid = ratio * marginalCost;
-		
-		// Keep track how many bidding rounds we performed
-		biddingRound += 1;
-		
-		return (long) Math.round(bid);
-	}
-	
-	public double agentsMarginalCost(Task task) {
-		TaskSet previousTasks = agent.getTasks();
-		List<Vehicle> agentVehicles = agent.vehicles();
-		List<CustomVehicle>customVehicles = new ArrayList<CustomVehicle>(); 
-		for(Vehicle v: agentVehicles) {
-			CustomVehicle custVehicle = new CustomVehicle(v);
-			customVehicles.add(custVehicle);
-		}
-		previousTasks.add(task);
-		
-		CSP csp = new CSP(customVehicles, previousTasks, 0.95, 1000);
-		CSPSolution bestSolution = csp.calculateCSP();
-		
-		double solutionCost = csp.calculateTotalCost(bestSolution);
-		double agentsMarginalCost = solutionCost - costOfAgent;
-		
-		return agentsMarginalCost;
-	}
-	
-	public double opponentsMarginalCost(Task task) {
-		// Just a trick to convert List into Array into TaskSet (we need taskset in CSP).
-		Task[] opponentsTasksArray = new Task[opponentsTasks.size()];
-		opponentsTasks.toArray(opponentsTasksArray); // fill the array
-		TaskSet previousOponentsTasks = TaskSet.create(opponentsTasksArray);
-		previousOponentsTasks.add(task);
-		
-		
-		CSP csp = new CSP(opponentsVehicles, previousOponentsTasks, 0.95, 1000);
-		CSPSolution bestOpponentSolution = csp.calculateCSP();
-		
-		double solutionCost = csp.calculateTotalCost(bestOpponentSolution);
-		double opponentsmMarginalCost = solutionCost - costOfAgent;
-		
-		return opponentsmMarginalCost;
-	}
-	
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         long time_start = System.currentTimeMillis();
         List<Plan> plans = centralizedPlan(vehicles, tasks);
@@ -185,31 +259,17 @@ public class AuctionTemplate implements AuctionBehavior {
     }
     
     private List<Plan> centralizedPlan(List<Vehicle> vehicles, TaskSet tasks) { 
-    		List<CustomVehicle>customVehicles = new ArrayList<CustomVehicle>(); 
+    		List<CustomVehicle> customVehicles = new ArrayList<CustomVehicle>(); 
     		for(Vehicle v: vehicles) {
     			CustomVehicle custVehicle = new CustomVehicle(v);
     			customVehicles.add(custVehicle);
     		}
-    		CSP csp = new CSP(customVehicles, tasks, 0.95, 1000);
+    		List<Task> currentTasks = new ArrayList<Task>(tasks);
+    		CSP csp = new CSP(customVehicles, currentTasks, 0.95, 1000);
     		List <Plan> plans = csp.createCentralizedPlan();
     		return plans;
     }
-
-//	@Override
-//	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-//		
-////		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-//
-//		Plan planVehicle1 = naivePlan(vehicle, tasks);
-//
-//		List<Plan> plans = new ArrayList<Plan>();
-//		plans.add(planVehicle1);
-//		while (plans.size() < vehicles.size())
-//			plans.add(Plan.EMPTY);
-//
-//		return plans;
-//	}
-
+    
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
 		City current = vehicle.getCurrentCity();
 		Plan plan = new Plan(current);
