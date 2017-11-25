@@ -76,9 +76,14 @@ public class CSP {
 			if (!involvedCustomVehicles.contains(CustomVehicle)) {
 				plans.add(Plan.EMPTY);
 			} else {
-				City current = CustomVehicle.getVehicle().getCurrentCity();
+				City current = CustomVehicle.getVehicle().homeCity();
 				Plan plan = new Plan(current);
 				Task currentTask = bestSolution.getNextTask(CustomVehicle);
+				
+//				createCentralizedPlanForVehicle(bestSolution, CustomVehicle);
+//				boolean b = checkIfPossibeSolution(bestSolution, CustomVehicle);
+//				System.out.println("Possible Solution: " + b);
+//				System.out.println("DEBUG");
 
 				while (currentTask != null) {
 
@@ -101,6 +106,8 @@ public class CSP {
 					// NEXTSTEP
 					currentTask = bestSolution.getNextTask(currentTask);
 				}
+				System.out.println("Vehicle: " + CustomVehicle.getVehicle().id());
+				System.out.println(plan);
 				plans.add(plan);
 				
 				double costOfPlan = plan.totalDistance() * CustomVehicle.getCostPerKm();
@@ -418,20 +425,60 @@ public class CSP {
 		for (int i = 1; i < timePoint + 1; i++) {
 			if ((current != null) && (A.getTimeInTrunk(current) > timePoint - i)) {
 				weight += current.weight;
-				current = A.getNextTask(current);
 			}
+			current = A.getNextTask(current);
 		}
 		return weight;
 	}
 
 	boolean checkIfPossibeSolution(CSPSolution A1, CustomVehicle v) {
 		int amountOfTasks = amountOfTasks(A1, v);
+//		createCentralizedPlanForVehicle(A1, v);
 		for (int i = 1; i < amountOfTasks + 1; i++) {
-			if (weight(A1, v, i) > v.getCapacity()) {
+			int weight = weight(A1, v, i);
+//			System.out.println("Weight: " + weight);
+			if ( weight > v.getCapacity()) {
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	public Plan createCentralizedPlanForVehicle(CSPSolution A1, CustomVehicle v) {
+		CSPSolution bestSolution = A1;
+
+		City current = v.getVehicle().homeCity();
+		Plan plan = new Plan(current);
+		Task currentTask = bestSolution.getNextTask(v);
+
+		while (currentTask != null) {
+
+			// PICKUP
+			for (City city : current.pathTo(currentTask.pickupCity)) {
+				plan.appendMove(city);
+			}
+			current = currentTask.pickupCity;
+			plan.appendPickup(currentTask);
+
+			// DELIVER
+			List<Task> shortestDeliveries = shortestDeliveryPath(bestSolution, currentTask);
+			for (Task toDeliver : shortestDeliveries) {
+				for (City city : current.pathTo(toDeliver.deliveryCity)) {
+					plan.appendMove(city);
+				}
+				current = toDeliver.deliveryCity;
+				plan.appendDelivery(toDeliver);
+			}
+			// NEXTSTEP
+			currentTask = bestSolution.getNextTask(currentTask);
+		}
+		System.out.println("Vehicle: " + v.getVehicle().id());
+		System.out.println(plan);
+		
+		double costOfPlan = plan.totalDistance() * v.getCostPerKm();
+		System.out.println("Cost of Plan for CustomVehicle " + v.getVehicle().id() + ": " + costOfPlan);
+
+		return plan;
 	}
 
 	void updateTime(CSPSolution A, CustomVehicle v) {

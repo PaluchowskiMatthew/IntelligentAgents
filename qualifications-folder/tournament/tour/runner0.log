@@ -1,111 +1,94 @@
-02:36:26.702 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/tour/auction-auctionDummy-auctionSmartAgent.xml -a tournament/tour/agents.xml config/auction.xml auctionDummy auctionSmartAgent
-02:36:26.892 CONFIG | Reading config/auction.xml
-02:36:26.957 CONFIG | Reading config/settings_auction.xml
-02:36:27.147 CONFIG | Reading config/topology/france.xml
-02:36:27.161 CONFIG | Reading tournament/tour/agents.xml
-02:36:27.227 CONFIG | Round: 0.0
-02:36:27.228 CONFIG | Predict cost:20384.0
-02:36:27.246 CONFIG | Round: 1.0
-02:36:27.247 CONFIG | Predict cost:20384.0
-02:36:27.260 CONFIG | Round: 2.0
-02:36:27.261 CONFIG | Predict cost:8568.0
-02:36:27.274 CONFIG | Round: 3.0
-02:36:27.274 CONFIG | Predict cost:12992.0
-02:36:27.300 CONFIG | Round: 4.0
-02:36:27.300 CONFIG | Predict cost:5896.0
-02:36:27.314 CONFIG | Round: 5.0
-02:36:27.314 CONFIG | Predict cost:9344.0
-02:36:27.341 CONFIG | Round: 6.0
-02:36:27.341 CONFIG | Predict cost:6752.0
-02:36:27.371 CONFIG | Round: 7.0
-02:36:27.371 CONFIG | Predict cost:9400.0
-02:36:27.398 CONFIG | Round: 8.0
-02:36:27.398 CONFIG | Predict cost:0.0
-02:36:27.419 CONFIG | Round: 9.0
-02:36:27.420 CONFIG | Predict cost:7584.0
-02:36:27.447 CONFIG | Round: 10.0
-02:36:27.447 CONFIG | Predict cost:6536.0
-02:36:27.486 CONFIG | Round: 11.0
-02:36:27.486 CONFIG | Predict cost:2280.0
-02:36:27.530 CONFIG | Round: 12.0
-02:36:27.530 CONFIG | Predict cost:4632.0
-02:36:27.554 CONFIG | Round: 13.0
-02:36:27.555 CONFIG | Predict cost:2384.0
-02:36:27.908 CONFIG | Round: 14.0
-02:36:27.908 CONFIG | Predict cost:13872.0
-02:36:27.968 CONFIG | Round: 15.0
-02:36:27.968 CONFIG | Predict cost:3136.0
-02:36:28.022 CONFIG | Round: 16.0
-02:36:28.022 CONFIG | Predict cost:2280.0
-02:36:28.085 CONFIG | Round: 17.0
-02:36:28.085 CONFIG | Predict cost:0.0
-02:36:28.136 CONFIG | Cost of Plan for CustomVehicle 0: 47606.0
-02:36:28.137 CONFIG | Cost of Plan for CustomVehicle 1: 59416.0
-02:36:28.137 CONFIG | The plan was generated in 49 milliseconds.
-02:36:28.138 WARNING | Exception in thread "main" Illegal pickup: Task weight exceeds remaining vehicle capacity
-02:36:28.143 WARNING | 	Current tasks : [(Task 12, 10 kg, 0 CHF, Genève -> Monaco), (Task 14, 10 kg, 0 CHF, Strasbourg -> Brest), (Task 17, 10 kg, 0 CHF, Bordeaux -> Paris)]
-02:36:28.144 WARNING | 	Current load  : 30 / 35 kg
-02:36:28.144 WARNING | 	Pickup task   : (Task 13, 10 kg, 0 CHF, Genève -> Lyon)
-02:36:28.145 WARNING | 	at logist.plan.PlanVerifier.verifyPlan(PlanVerifier.java:58)
-02:36:28.146 WARNING | 	at logist.agent.AuctionAgent.nextAction(AuctionAgent.java:150)
-02:36:28.146 WARNING | 	at logist.simulation.VehicleImpl.executeNextAction(VehicleImpl.java:84)
-02:36:28.147 WARNING | 	at logist.simulation.Simulation.step(Simulation.java:109)
-02:36:28.148 WARNING | 	at logist.simulation.Simulation.run(Simulation.java:78)
-02:36:28.149 WARNING | 	at logist.simulation.Manager.run(Manager.java:62)
-02:36:28.150 WARNING | 	at logist.LogistPlatform.main(LogistPlatform.java:126)
-02:37:28.546 SEVERE | LogistPlatform returned error code 1
-02:37:28.548 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/tour/auction-auctionSmartAgent-auctionDummy.xml -a tournament/tour/agents.xml config/auction.xml auctionSmartAgent auctionDummy
-02:37:28.691 CONFIG | Reading config/auction.xml
-02:37:28.752 CONFIG | Reading config/settings_auction.xml
-02:37:28.942 CONFIG | Reading config/topology/france.xml
-02:37:28.955 CONFIG | Reading tournament/tour/agents.xml
-02:37:29.028 CONFIG | Round: 0.0
-02:37:29.029 CONFIG | Predict cost:19411.0
-02:37:29.053 CONFIG | Round: 1.0
-02:37:29.053 CONFIG | Predict cost:17836.0
-02:37:29.070 CONFIG | Round: 2.0
-02:37:29.070 CONFIG | Predict cost:7497.0
-02:37:29.101 CONFIG | Round: 3.0
-02:37:29.102 CONFIG | Predict cost:11368.0
-02:37:29.132 CONFIG | Round: 4.0
-02:37:29.132 CONFIG | Predict cost:5159.0
-02:37:29.154 CONFIG | Round: 5.0
-02:37:29.155 CONFIG | Predict cost:8176.0
-02:37:29.173 CONFIG | Round: 6.0
-02:37:29.174 CONFIG | Predict cost:6328.0
-02:37:29.196 CONFIG | Round: 7.0
-02:37:29.196 CONFIG | Predict cost:9611.0
-02:37:29.210 CONFIG | Round: 8.0
-02:37:29.210 CONFIG | Predict cost:6370.0
-02:37:29.225 CONFIG | Round: 9.0
-02:37:29.225 CONFIG | Predict cost:4830.0
-02:37:29.262 CONFIG | Round: 10.0
-02:37:29.262 CONFIG | Predict cost:3913.0
-02:37:29.291 CONFIG | Round: 11.0
-02:37:29.291 CONFIG | Predict cost:3150.0
-02:37:29.311 CONFIG | Round: 12.0
-02:37:29.311 CONFIG | Predict cost:4053.0
-02:37:29.342 CONFIG | Round: 13.0
-02:37:29.342 CONFIG | Predict cost:2086.0
-02:37:29.370 CONFIG | Round: 14.0
-02:37:29.370 CONFIG | Predict cost:3913.0
-02:37:29.387 CONFIG | Round: 15.0
-02:37:29.387 CONFIG | Predict cost:2744.0
-02:37:29.456 CONFIG | Round: 16.0
-02:37:29.459 CONFIG | Predict cost:6384.0
-02:37:29.488 CONFIG | Round: 17.0
-02:37:29.488 CONFIG | Predict cost:0.0
-02:37:53.543 CONFIG | Cost of Plan for CustomVehicle 1: 87045.0
-02:37:53.545 WARNING | Exception in thread "main" Illegal pickup: Task weight exceeds remaining vehicle capacity
-02:37:53.550 CONFIG | The plan was generated in 24054 milliseconds.
-02:37:53.551 WARNING | 	Current tasks : [(Task 9, 10 kg, 0 CHF, Genève -> Le Havre), (Task 11, 10 kg, 0 CHF, Marseille -> Monaco), (Task 12, 10 kg, 0 CHF, Genève -> Monaco)]
-02:37:53.552 WARNING | 	Current load  : 30 / 35 kg
-02:37:53.552 WARNING | 	Pickup task   : (Task 13, 10 kg, 0 CHF, Genève -> Lyon)
-02:37:53.553 WARNING | 	at logist.plan.PlanVerifier.verifyPlan(PlanVerifier.java:58)
-02:37:53.554 WARNING | 	at logist.agent.AuctionAgent.nextAction(AuctionAgent.java:150)
-02:37:53.554 WARNING | 	at logist.simulation.VehicleImpl.executeNextAction(VehicleImpl.java:84)
-02:37:53.554 WARNING | 	at logist.simulation.Simulation.step(Simulation.java:109)
-02:37:53.555 WARNING | 	at logist.simulation.Simulation.run(Simulation.java:78)
-02:37:53.556 WARNING | 	at logist.simulation.Manager.run(Manager.java:62)
-02:37:53.556 WARNING | 	at logist.LogistPlatform.main(LogistPlatform.java:126)
-02:38:54.649 SEVERE | LogistPlatform returned error code 1
+02:37:04.461 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/tour/auction-auctionDummy-auctionSmartAgent.xml -a tournament/tour/agents.xml config/auction.xml auctionDummy auctionSmartAgent
+02:37:04.660 CONFIG | Reading config/auction.xml
+02:37:04.724 CONFIG | Reading config/settings_auction.xml
+02:37:04.952 CONFIG | Reading config/topology/france.xml
+02:37:04.968 CONFIG | Reading tournament/tour/agents.xml
+02:37:05.039 CONFIG | Round: 0.0
+02:37:05.040 CONFIG | Predict cost:20384.0
+02:37:05.059 CONFIG | Round: 1.0
+02:37:05.059 CONFIG | Predict cost:17280.0
+02:37:05.072 CONFIG | Round: 2.0
+02:37:05.072 CONFIG | Predict cost:5464.0
+02:37:05.093 CONFIG | Round: 3.0
+02:37:05.093 CONFIG | Predict cost:14656.0
+02:37:05.111 CONFIG | Round: 4.0
+02:37:05.111 CONFIG | Predict cost:3584.0
+02:37:05.130 CONFIG | Round: 5.0
+02:37:05.130 CONFIG | Predict cost:3584.0
+02:37:05.156 CONFIG | Round: 6.0
+02:37:05.156 CONFIG | Predict cost:0.0
+02:37:05.195 CONFIG | Round: 7.0
+02:37:05.195 CONFIG | Predict cost:6296.0
+02:37:05.227 CONFIG | Round: 8.0
+02:37:05.227 CONFIG | Predict cost:3584.0
+02:37:05.246 CONFIG | Round: 9.0
+02:37:05.246 CONFIG | Predict cost:0.0
+02:37:05.264 CONFIG | Round: 10.0
+02:37:05.264 CONFIG | Predict cost:0.0
+02:37:05.293 CONFIG | Round: 11.0
+02:37:05.293 CONFIG | Predict cost:2248.0
+02:37:05.327 CONFIG | Round: 12.0
+02:37:05.327 CONFIG | Predict cost:2248.0
+02:37:05.344 CONFIG | Round: 13.0
+02:37:05.344 CONFIG | Predict cost:0.0
+02:37:05.394 CONFIG | Round: 14.0
+02:37:05.394 CONFIG | Predict cost:6296.0
+02:37:05.430 CONFIG | Round: 15.0
+02:37:05.430 CONFIG | Predict cost:0.0
+02:37:05.461 CONFIG | Round: 16.0
+02:37:05.462 CONFIG | Predict cost:2248.0
+02:37:05.525 CONFIG | Round: 17.0
+02:37:05.525 CONFIG | Predict cost:3584.0
+02:37:05.615 CONFIG | Vehicle: 1
+02:37:05.615 CONFIG | [Move (Lyon), Move (Paris), Pickup (Task 16), Move (Lyon), Move (Marseille), Move (Monaco), Deliver (Task 16), Move (Marseille), Pickup (Task 11), Move (Monaco), Deliver (Task 11), Move (Marseille), Move (Lyon), Pickup (Task 7), Pickup (Task 6), Move (Genève), Pickup (Task 9), Move (Lyon), Move (Marseille), Deliver (Task 6), Move (Lyon), Pickup (Task 10), Move (Genève), Move (Strasbourg), Deliver (Task 10), Pickup (Task 14), Move (Paris), Move (Brest), Deliver (Task 7), Deliver (Task 14), Pickup (Task 0), Move (Paris), Move (Bordeaux), Deliver (Task 0), Move (Paris), Move (Le Havre), Deliver (Task 9), Pickup (Task 15), Move (Paris), Pickup (Task 8), Pickup (Task 5), Deliver (Task 15), Move (Bordeaux), Deliver (Task 8), Deliver (Task 5), Pickup (Task 17), Pickup (Task 4), Move (Lyon), Move (Genève), Deliver (Task 4), Pickup (Task 13), Move (Lyon), Deliver (Task 13), Move (Genève), Pickup (Task 12), Move (Lyon), Move (Paris), Move (Brest), Pickup (Task 1), Move (Paris), Deliver (Task 17), Move (Lyon), Move (Marseille), Deliver (Task 1), Move (Monaco), Deliver (Task 12)], 11900.0
+02:37:05.615 CONFIG | Cost of Plan for CustomVehicle 1: 95200.0
+02:37:05.616 CONFIG | The plan was generated in 85 milliseconds.
+02:37:05.623 CONFIG | Wrote tournament/tour/auction-auctionDummy-auctionSmartAgent.xml
+02:37:05.857 INFO | LogistPlatform finished successfully!
+02:37:05.861 FINE | Run command: java -Xmx1024m -classpath logist/logist.jar logist.LogistPlatform -o tournament/tour/auction-auctionSmartAgent-auctionDummy.xml -a tournament/tour/agents.xml config/auction.xml auctionSmartAgent auctionDummy
+02:37:06.011 CONFIG | Reading config/auction.xml
+02:37:06.076 CONFIG | Reading config/settings_auction.xml
+02:37:06.299 CONFIG | Reading config/topology/france.xml
+02:37:06.313 CONFIG | Reading tournament/tour/agents.xml
+02:37:06.385 CONFIG | Round: 0.0
+02:37:06.386 CONFIG | Predict cost:19411.0
+02:37:06.405 CONFIG | Round: 1.0
+02:37:06.405 CONFIG | Predict cost:13748.0
+02:37:06.423 CONFIG | Round: 2.0
+02:37:06.423 CONFIG | Predict cost:3409.0
+02:37:06.441 CONFIG | Round: 3.0
+02:37:06.441 CONFIG | Predict cost:12824.0
+02:37:06.463 CONFIG | Round: 4.0
+02:37:06.463 CONFIG | Predict cost:3136.0
+02:37:06.486 CONFIG | Round: 5.0
+02:37:06.487 CONFIG | Predict cost:3136.0
+02:37:06.503 CONFIG | Round: 6.0
+02:37:06.504 CONFIG | Predict cost:0.0
+02:37:06.539 CONFIG | Round: 7.0
+02:37:06.539 CONFIG | Predict cost:5509.0
+02:37:06.561 CONFIG | Round: 8.0
+02:37:06.561 CONFIG | Predict cost:3136.0
+02:37:06.578 CONFIG | Round: 9.0
+02:37:06.578 CONFIG | Predict cost:0.0
+02:37:06.592 CONFIG | Round: 10.0
+02:37:06.592 CONFIG | Predict cost:0.0
+02:37:06.612 CONFIG | Round: 11.0
+02:37:06.612 CONFIG | Predict cost:1967.0
+02:37:06.664 CONFIG | Round: 12.0
+02:37:06.664 CONFIG | Predict cost:1967.0
+02:37:06.681 CONFIG | Round: 13.0
+02:37:06.681 CONFIG | Predict cost:0.0
+02:37:06.714 CONFIG | Round: 14.0
+02:37:06.714 CONFIG | Predict cost:5509.0
+02:37:06.733 CONFIG | Round: 15.0
+02:37:06.733 CONFIG | Predict cost:868.0
+02:37:06.760 CONFIG | Round: 16.0
+02:37:06.760 CONFIG | Predict cost:1967.0
+02:37:06.799 CONFIG | Round: 17.0
+02:37:06.799 CONFIG | Predict cost:3136.0
+02:37:06.842 CONFIG | Vehicle: 1
+02:37:06.844 CONFIG | [Move (Marseille), Pickup (Task 11), Move (Monaco), Deliver (Task 11), Move (Marseille), Move (Lyon), Pickup (Task 6), Move (Marseille), Deliver (Task 6), Move (Lyon), Move (Genève), Pickup (Task 13), Move (Lyon), Move (Paris), Move (Le Havre), Pickup (Task 15), Move (Paris), Deliver (Task 15), Move (Lyon), Move (Genève), Pickup (Task 9), Move (Lyon), Move (Paris), Move (Le Havre), Deliver (Task 9), Move (Paris), Pickup (Task 8), Move (Bordeaux), Pickup (Task 17), Deliver (Task 8), Pickup (Task 4), Move (Lyon), Move (Genève), Deliver (Task 4), Move (Lyon), Pickup (Task 7), Deliver (Task 13), Pickup (Task 10), Move (Genève), Move (Strasbourg), Deliver (Task 10), Pickup (Task 14), Move (Paris), Move (Brest), Deliver (Task 7), Deliver (Task 14), Pickup (Task 0), Move (Paris), Deliver (Task 17), Move (Bordeaux), Deliver (Task 0), Move (Paris), Move (Brest), Pickup (Task 1), Move (Paris), Pickup (Task 5), Move (Lyon), Move (Marseille), Deliver (Task 1), Move (Bordeaux), Deliver (Task 5), Move (Paris), Pickup (Task 16), Move (Lyon), Move (Genève), Pickup (Task 12), Move (Monaco), Deliver (Task 16), Deliver (Task 12)], 13576.0
+02:37:06.844 CONFIG | Cost of Plan for CustomVehicle 1: 95032.0
+02:37:06.844 CONFIG | The plan was generated in 44 milliseconds.
+02:37:06.854 CONFIG | Wrote tournament/tour/auction-auctionSmartAgent-auctionDummy.xml
+02:37:07.194 INFO | LogistPlatform finished successfully!
